@@ -1,8 +1,4 @@
 (function(global, $){
-  
-  var Annotation = function(){
-
-  }
 
   function getFullCSSPath(el){
     var names = [];
@@ -52,6 +48,12 @@
           break;
       }
     }
+    else
+    {
+      span.style.fontWeight = 'normal';
+      span.style.fontStyle = 'normal';
+      span.style.textDecoration = 'none';
+    }
 
     span.appendChild(selectedText);
     selection.insertNode(span);
@@ -71,23 +73,32 @@
 
   $(".container").on('mouseup', function () {
       var selectedObj = highlightText('#FEC324');
-      insertComment(selectedObj);
+      var currentRef = insertComment(selectedObj);
       if($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%")
       {
         $(".comment-area").css("display","block").animate({"right": "0%" }, "fast" );
       }
+
+      if($('.comment-list').css('right') === "-15%" || $('.comment-list').css('right') === "0%")
+      {
+        $(".comment-list").css("display","block").animate({"right": "0%" }, "fast" );
+      }
+
       $('.comment-area textarea').focus();
       $('.comment-area textarea').change(function() {
-          commentsRef.update({
+          currentRef.update({
             comment: $('.comment-area textarea').val()
           });
+          //  Need to reflect this change in real-time
       });
+
   });
 
   function insertComment(selectedObj){
     console.log(selectedObj);
     if(selectedObj.text)
-      commentsRef.push({
+      //  Returns a reference to the object inserted thus far.
+      return commentsRef.push({
         twitterUserID: twitterUserID,
         twitterName: twitterName,
         twitterHandle: twitterHandle,
@@ -95,7 +106,6 @@
         comment: "",
         path: selectedObj.currentCSSPath,
         parentPath: selectedObj.parentCSSPath
-
       });
   }
 
@@ -175,19 +185,19 @@
     var newDiv = $("<div/>").addClass("comment").attr("id",snapshot.name()).appendTo("#comments");
 
     console.log(item);
-
     $('.comment-list .collection').append(
-      '<a href="#!" class="collection-item" style="line-height:0.5rem;">' + 
-        "<strong>" + item.twitterName + "</strong>" + ": " + "<br/>" + "<em>Highlighted Text</em>" + ": " + item.highlighted_text + "<br/>" + "<em>Comment</em>" + ": " + item.comment +
+      '<a href="#!" class="collection-item" style="line-height:0.5rem;" id="'+ snapshot.name().substring(1) +'">' + 
+        "<strong>" + item.twitterName + "</strong>" + ": " + "<br/>" + "<em style='color: #252525;'>Highlighted Text</em>" + ": " + "<br/>" + "<span class='highlighted-text'>" + item.highlighted_text + "</span>" + "<br/>" + "<em style='color: #252525;''>Comment</em>" + ": " + "<br/>" + "<span class='comment-text'>" + item.comment + "</span>" + 
       '</li>'
       );
   });
 
   commentsRef.on('child_changed', function(snapshot){
-
+    console.log(snapshot.val());
+    $("#" + snapshot.name().substring(1) + " span.comment-text").text(snapshot.val().comment)
   });
 
-  last10Comments.on("child_removed", function(snapshot) {
+  commentsRef.on("child_removed", function(snapshot) {
     $("#" + snapshot.name()).remove();
   });
 
@@ -248,7 +258,7 @@
   commentList.style.bottom = "0%";
   commentList.style.position = "fixed";
   commentList.style.textAlign = "center";
-  commentList.style.right = "0px";
+  commentList.style.right = "0%";
   commentList.style.overflow = "scroll";
   commentList.style.color = "white";
   commentList.style.fontSize = "8px";
@@ -256,7 +266,7 @@
 
   document.body.appendChild(commentList);
 
-  $("<ul></ul>").addClass('collection').appendTo('.comment-list');
+  $("<ul></ul>").addClass('collection').css('border', 'none').appendTo('.comment-list');
   
   function iconOn(selector){
     selector.off("mouseout");
@@ -322,6 +332,7 @@
         });
   }
 
+
   /******/
   //  For bolding text...
   /******/
@@ -329,18 +340,34 @@
   $(".mdi-editor-format-bold").one("click", handler_bold_one);
 
   function handler_bold_one(){
+    //  Must turn off italicizing, underlining and crossing.
+    handler_underline_two();
+    handler_italicize_two();
+    handler_crossing_two();
+
     iconOn($(this));
 
     $('.container').off('mouseup');
     $(".container").on('mouseup', function () {
       console.log("Inside");
       var selectedObj = highlightText('#FEC324', 'bold');
-      insertComment(selectedObj);
+      var currentRef = insertComment(selectedObj);
       if($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%")
       {
         $(".comment-area").css("display","block").animate({"right": "0%" }, "fast" );
       }
+      if($('.comment-list').css('right') === "-15%" || $('.comment-list').css('right') === "0%")
+      {
+        $(".comment-list").css("display","block").animate({"right": "0%" }, "fast" );
+      }
+
       $('.comment-area textarea').focus();
+      $('.comment-area textarea').change(function() {
+          currentRef.update({
+            comment: $('.comment-area textarea').val()
+          });
+          //  Need to reflect this change in real-time
+      });
     });
 
     $('.container').off('mousedown');
@@ -349,20 +376,33 @@
       //  Time to set focus to the comment box...
     });
 
+    
+
     $(this).one("click", handler_bold_two);
   }
 
   function handler_bold_two(){
-    iconOff($(this));
+    iconOff($('.mdi-editor-format-bold'));
 
     $(".container").on('mouseup', function () {
       var selectedObj = highlightText('#FEC324');
-      insertComment(selectedObj);
+      var currentRef = insertComment(selectedObj);
       if($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%")
       {
         $(".comment-area").css("display","block").animate({"right": "0%" }, "fast" );
       }
+      if($('.comment-list').css('right') === "-15%" || $('.comment-list').css('right') === "0%")
+      {
+        $(".comment-list").css("display","block").animate({"right": "0%" }, "fast" );
+      }
+
       $('.comment-area textarea').focus();
+      $('.comment-area textarea').change(function() {
+          currentRef.update({
+            comment: $('.comment-area textarea').val()
+          });
+          //  Need to reflect this change in real-time
+      });
     });
 
   $(".container").on('mousedown', function () {
@@ -370,7 +410,9 @@
       unhighlightText();
   });
 
-    $(this).one("click", handler_bold_one);
+  
+
+    $('.mdi-editor-format-bold').one("click", handler_bold_one);
   }
 
   /******/
@@ -380,17 +422,34 @@
   $(".mdi-editor-format-color-text").one("click", handler_underline_one);
 
   function handler_underline_one(){
+    //  Must turn off italicizing, bolding and crossing.
+    handler_bold_two();
+    handler_italicize_two();
+    handler_crossing_two();
+
     iconOn($(this));
+
     $(".container").off('mouseup');
     $(".container").on('mouseup', function () {
       console.log("Inside");
       var selectedObj = highlightText('#FEC324', 'underline');
-      insertComment(selectedObj);
+      var currentRef = insertComment(selectedObj);
       if($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%")
       {
         $(".comment-area").css("display","block").animate({"right": "0%" }, "fast" );
       }
+      if($('.comment-list').css('right') === "-15%" || $('.comment-list').css('right') === "0%")
+      {
+        $(".comment-list").css("display","block").animate({"right": "0%" }, "fast" );
+      }
+
       $('.comment-area textarea').focus();
+      $('.comment-area textarea').change(function() {
+          currentRef.update({
+            comment: $('.comment-area textarea').val()
+          });
+          //  Need to reflect this change in real-time
+      });
     });
 
     $(".container").off('mousedown');
@@ -398,27 +457,42 @@
       unhighlightText();
     });
 
+    
+
     $(this).one("click", handler_underline_two);
   }
 
   function handler_underline_two(){
-    iconOff($(this));
+    iconOff($('.mdi-editor-format-color-text'));
 
     $(".container").on('mouseup', function () {
       var selectedObj = highlightText('#FEC324');
-      insertComment(selectedObj);
+      var currentRef = insertComment(selectedObj);
       if($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%")
       {
         $(".comment-area").css("display","block").animate({"right": "0%" }, "fast" );
       }
+      if($('.comment-list').css('right') === "-15%" || $('.comment-list').css('right') === "0%")
+      {
+        $(".comment-list").css("display","block").animate({"right": "0%" }, "fast" );
+      }
+
       $('.comment-area textarea').focus();
+      $('.comment-area textarea').change(function() {
+          currentRef.update({
+            comment: $('.comment-area textarea').val()
+          });
+          //  Need to reflect this change in real-time
+      });
     });
 
     $(".container").on('mousedown', function () {
         unhighlightText();
     });
 
-    $(this).one("click", handler_underline_one);
+    
+
+    $('.mdi-editor-format-color-text').one("click", handler_underline_one);
   }
 
   /******/
@@ -428,18 +502,34 @@
   $(".mdi-editor-format-italic").one("click", handler_italicize_one);
 
   function handler_italicize_one(){
+    //  Must turn off underlining, bolding and crossing.
+    handler_bold_two();
+    handler_underline_two();
+    handler_crossing_two();
+
     iconOn($(this));
 
     $(".container").off('mouseup');
     $(".container").on('mouseup', function () {
       console.log("Inside");
       var selectedObj = highlightText('#FEC324', 'italic');
-      insertComment(selectedObj);
+      var currentRef = insertComment(selectedObj);
       if($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%")
       {
         $(".comment-area").css("display","block").animate({"right": "0%" }, "fast" );
       }
+      if($('.comment-list').css('right') === "-15%" || $('.comment-list').css('right') === "0%")
+      {
+        $(".comment-list").css("display","block").animate({"right": "0%" }, "fast" );
+      }
+
       $('.comment-area textarea').focus();
+      $('.comment-area textarea').change(function() {
+          currentRef.update({
+            comment: $('.comment-area textarea').val()
+          });
+          //  Need to reflect this change in real-time
+      });
     });
 
     $(".container").off('mousedown');
@@ -447,21 +537,33 @@
       unhighlightText();
     });
 
+    
+
     $(this).one("click", handler_italicize_two);
   }
 
   function handler_italicize_two(){
-    iconOff($(this));
+    iconOff($('.mdi-editor-format-italic'));
 
-  
     $(".container").on('mouseup', function () {
       var selectedObj = highlightText('#FEC324');
-      insertComment(selectedObj);
+      var currentRef = insertComment(selectedObj);
       if($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%")
       {
         $(".comment-area").css("display","block").animate({"right": "0%" }, "fast" );
       }
+      if($('.comment-list').css('right') === "-15%" || $('.comment-list').css('right') === "0%")
+      {
+        $(".comment-list").css("display","block").animate({"right": "0%" }, "fast" );
+      }
+
       $('.comment-area textarea').focus();
+      $('.comment-area textarea').change(function() {
+          currentRef.update({
+            comment: $('.comment-area textarea').val()
+          });
+          //  Need to reflect this change in real-time
+      });
     });
 
   $(".container").on('mousedown', function () {
@@ -469,7 +571,7 @@
       unhighlightText();
   });
 
-    $(this).one("click", handler_italicize_one);
+    $('.mdi-editor-format-italic').one("click", handler_italicize_one);
   }
 
   /******/
@@ -479,18 +581,34 @@
   $(".mdi-editor-format-clear").one("click", handler_crossing_one);
 
   function handler_crossing_one(){
+    //  Must turn off italicizing, bolding and crossing.
+    handler_bold_two();
+    handler_italicize_two();
+    handler_underline_two();
+
     iconOn($(this));
 
     $(".container").off('mouseup');
     $(".container").on('mouseup', function () {
       console.log("Inside");
       var selectedObj = highlightText('#FEC324', 'cross');
-      insertComment(selectedObj);
+      var currentRef = insertComment(selectedObj);
       if($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%")
       {
         $(".comment-area").css("display","block").animate({"right": "0%" }, "fast" );
       }
+      if($('.comment-list').css('right') === "-15%" || $('.comment-list').css('right') === "0%")
+      {
+        $(".comment-list").css("display","block").animate({"right": "0%" }, "fast" );
+      }
+
       $('.comment-area textarea').focus();
+      $('.comment-area textarea').change(function() {
+          currentRef.update({
+            comment: $('.comment-area textarea').val()
+          });
+          //  Need to reflect this change in real-time
+      });
     });
 
     $(".container").off('mousedown');
@@ -498,34 +616,48 @@
       unhighlightText();
     });
 
+    
+
     $(this).one("click", handler_crossing_two);
   }
 
   function handler_crossing_two(){
-    iconOff($(this));
+    iconOff($('.mdi-editor-format-clear'));
 
   
     $(".container").on('mouseup', function () {
       var selectedObj = highlightText('#FEC324');
-      insertComment(selectedObj);
+      var currentRef = insertComment(selectedObj);
       if($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%")
       {
         $(".comment-area").css("display","block").animate({"right": "0%" }, "fast" );
       }
+      if($('.comment-list').css('right') === "-15%" || $('.comment-list').css('right') === "0%")
+      {
+        $(".comment-list").css("display","block").animate({"right": "0%" }, "fast" );
+      }
+
       $('.comment-area textarea').focus();
+       $('.comment-area textarea').change(function() {
+          currentRef.update({
+            comment: $('.comment-area textarea').val()
+          });
+          //  Need to reflect this change in real-time
+      });
     });
 
   $(".container").on('mousedown', function () {
-  
       unhighlightText();
   });
 
-    $(this).one("click", handler_crossing_one);
+ 
+
+    $('.mdi-editor-format-clear').one("click", handler_crossing_one);
   }
+
+
 
   //  For each CSS selector for an HTML item, store into Firebase...
 
   //  Let's render the last ten elements
-
-
 }(window, jQuery));
