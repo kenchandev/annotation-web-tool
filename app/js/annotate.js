@@ -7,6 +7,7 @@
   function getFullCSSPath(el){
     var names = [];
     while (el.parentNode){
+      console.log(el.parentNode);
       if (el.id){
         names.unshift('#'+el.id);
         break;
@@ -44,6 +45,9 @@
         case 'underline':
           span.style.textDecoration = 'underline'; 
           break;
+        case 'cross':
+          span.style.textDecoration = 'line-through'; 
+          break;
         default:
           break;
       }
@@ -52,11 +56,12 @@
     span.appendChild(selectedText);
     selection.insertNode(span);
 
-    console.log(selection);
+    console.log();
 
     return {
       text:span.innerText,
-      cssPath:getFullCSSPath(span)
+      parentCSSPath:getFullCSSPath(span.parentNode),
+      currentCSSPath:getFullCSSPath(span)
     };
   }
 
@@ -67,7 +72,16 @@
   $(".container").on('mouseup', function () {
       var selectedObj = highlightText('#FEC324');
       insertComment(selectedObj);
+      if($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%")
+      {
+        $(".comment-area").css("display","block").animate({"right": "0%" }, "fast" );
+      }
       $('.comment-area textarea').focus();
+      $('.comment-area textarea').change(function() {
+          commentsRef.update({
+            comment: $('.comment-area textarea').val()
+          });
+      });
   });
 
   function insertComment(selectedObj){
@@ -75,8 +89,13 @@
     if(selectedObj.text)
       commentsRef.push({
         twitterUserID: twitterUserID,
-        body: selectedObj.text,
-        path: selectedObj.cssPath
+        twitterName: twitterName,
+        twitterHandle: twitterHandle,
+        highlighted_text: selectedObj.text,
+        comment: "",
+        path: selectedObj.currentCSSPath,
+        parentPath: selectedObj.parentCSSPath
+
       });
   }
 
@@ -144,7 +163,33 @@
 
   var rootRef = new Firebase("https://web-annotation.firebaseio.com/");
   var commentsRef = rootRef.child("comments");
-  var twitterUserID = "Anonymous";
+  var twitterUserID = "404";
+  var twitterName = "Anonymous"
+  var twitterHandle = "@Anonymous";
+
+  var last10Comments = commentsRef.limit(10);
+
+  commentsRef.on('child_added', function(snapshot){
+    var item = snapshot.val();
+
+    var newDiv = $("<div/>").addClass("comment").attr("id",snapshot.name()).appendTo("#comments");
+
+    console.log(item);
+
+    $('.comment-list .collection').append(
+      '<a href="#!" class="collection-item" style="line-height:0.5rem;">' + 
+        "<strong>" + item.twitterName + "</strong>" + ": " + "<br/>" + "<em>Highlighted Text</em>" + ": " + item.highlighted_text + "<br/>" + "<em>Comment</em>" + ": " + item.comment +
+      '</li>'
+      );
+  });
+
+  commentsRef.on('child_changed', function(snapshot){
+
+  });
+
+  last10Comments.on("child_removed", function(snapshot) {
+    $("#" + snapshot.name()).remove();
+  });
 
   $('.mdi-action-account-box').on('click', function(){
       
@@ -153,7 +198,10 @@
         console.log("Login Failed!", error);
       } else {
         console.log("Authenticated successfully with payload:", authData);
+        console.log(authData);
         twitterUserID = authData.uid.split(':')[1];
+        twitterName = authData.twitter.displayName;
+        twitterHandle = authData.twitter.username;
       }
       //  remember: sessionOnly
       //  This is an optional third parameter. Session expires upon browser exiting.
@@ -175,7 +223,7 @@
   commentArea.style.bottom = "80%";
   commentArea.style.position = "fixed";
   commentArea.style.textAlign = "center";
-  commentArea.style.right = "0px";
+  commentArea.style.right = "0%";
   commentArea.style.overflow = "scroll";
   commentArea.style.color = "white";
   commentArea.style.fontSize = "8px";
@@ -189,7 +237,7 @@
 
   var commentList = document.createElement("div");
 
-  commentList.className = "comment-list";
+  commentList.className = "comment-list container";
   
   commentList.style.background = "#252525";
   commentList.style.width = "15%";
@@ -207,6 +255,8 @@
   commentList.style.boxShadow = "0px 0px 16px rgba(0, 0, 0, 0.6)";
 
   document.body.appendChild(commentList);
+
+  $("<ul></ul>").addClass('collection').appendTo('.comment-list');
   
   function iconOn(selector){
     selector.off("mouseout");
@@ -286,6 +336,10 @@
       console.log("Inside");
       var selectedObj = highlightText('#FEC324', 'bold');
       insertComment(selectedObj);
+      if($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%")
+      {
+        $(".comment-area").css("display","block").animate({"right": "0%" }, "fast" );
+      }
       $('.comment-area textarea').focus();
     });
 
@@ -301,12 +355,13 @@
   function handler_bold_two(){
     iconOff($(this));
 
-    
-
-
     $(".container").on('mouseup', function () {
       var selectedObj = highlightText('#FEC324');
       insertComment(selectedObj);
+      if($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%")
+      {
+        $(".comment-area").css("display","block").animate({"right": "0%" }, "fast" );
+      }
       $('.comment-area textarea').focus();
     });
 
@@ -331,6 +386,10 @@
       console.log("Inside");
       var selectedObj = highlightText('#FEC324', 'underline');
       insertComment(selectedObj);
+      if($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%")
+      {
+        $(".comment-area").css("display","block").animate({"right": "0%" }, "fast" );
+      }
       $('.comment-area textarea').focus();
     });
 
@@ -348,6 +407,10 @@
     $(".container").on('mouseup', function () {
       var selectedObj = highlightText('#FEC324');
       insertComment(selectedObj);
+      if($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%")
+      {
+        $(".comment-area").css("display","block").animate({"right": "0%" }, "fast" );
+      }
       $('.comment-area textarea').focus();
     });
 
@@ -372,6 +435,10 @@
       console.log("Inside");
       var selectedObj = highlightText('#FEC324', 'italic');
       insertComment(selectedObj);
+      if($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%")
+      {
+        $(".comment-area").css("display","block").animate({"right": "0%" }, "fast" );
+      }
       $('.comment-area textarea').focus();
     });
 
@@ -390,6 +457,10 @@
     $(".container").on('mouseup', function () {
       var selectedObj = highlightText('#FEC324');
       insertComment(selectedObj);
+      if($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%")
+      {
+        $(".comment-area").css("display","block").animate({"right": "0%" }, "fast" );
+      }
       $('.comment-area textarea').focus();
     });
 
@@ -399,6 +470,57 @@
   });
 
     $(this).one("click", handler_italicize_one);
+  }
+
+  /******/
+  //  For crossing text...
+  /******/
+
+  $(".mdi-editor-format-clear").one("click", handler_crossing_one);
+
+  function handler_crossing_one(){
+    iconOn($(this));
+
+    $(".container").off('mouseup');
+    $(".container").on('mouseup', function () {
+      console.log("Inside");
+      var selectedObj = highlightText('#FEC324', 'cross');
+      insertComment(selectedObj);
+      if($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%")
+      {
+        $(".comment-area").css("display","block").animate({"right": "0%" }, "fast" );
+      }
+      $('.comment-area textarea').focus();
+    });
+
+    $(".container").off('mousedown');
+    $(".container").on('mousedown', function () {
+      unhighlightText();
+    });
+
+    $(this).one("click", handler_crossing_two);
+  }
+
+  function handler_crossing_two(){
+    iconOff($(this));
+
+  
+    $(".container").on('mouseup', function () {
+      var selectedObj = highlightText('#FEC324');
+      insertComment(selectedObj);
+      if($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%")
+      {
+        $(".comment-area").css("display","block").animate({"right": "0%" }, "fast" );
+      }
+      $('.comment-area textarea').focus();
+    });
+
+  $(".container").on('mousedown', function () {
+  
+      unhighlightText();
+  });
+
+    $(this).one("click", handler_crossing_one);
   }
 
   //  For each CSS selector for an HTML item, store into Firebase...
