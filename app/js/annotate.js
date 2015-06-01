@@ -52,7 +52,7 @@
     span.appendChild(selectedText);
     selection.insertNode(span);
 
-    console.log(getFullCSSPath(span));
+    console.log(selection);
 
     return {
       text:span.innerText,
@@ -127,37 +127,19 @@
   $('.mdi-editor-format-bold').on('click', function(){
     $('.annotate').css("color", "#26A69A");
     $(this).css("color", "#26A69A");
-    // $(document).on('mouseup', function() {
-    //   boldText('#FEC324');
-    // });
 
-    // $(document).on('mousedown', function() {
-    //   unboldText();
-    // });
   });
 
   $('.mdi-editor-format-italic').on('click', function(){
     $('.annotate').css("color", "#26A69A");
     $(this).css("color", "#26A69A");
-    // $(document).on('mouseup', function () {
-    //   boldText('#FEC324');
-    // });
 
-    // $(document).on('mousedown', function() {
-    //   unboldText();
-    // });
   });
 
   $('.mdi-editor-format-color-text').on('click', function(){
     $('.annotate').css("color", "#26A69A");
     $(this).css("color", "#26A69A");
-    // $(document).on('mouseup', function() {
-    //   boldText('#FEC324');
-    // });
 
-    // $(document).on('mousedown', function() {
-    //   unboldText();
-    // });
   });
 
   var rootRef = new Firebase("https://web-annotation.firebaseio.com/");
