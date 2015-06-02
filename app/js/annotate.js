@@ -873,13 +873,13 @@
   $(".mdi-content-archive").one("click", handler_archive_one);
 
   function handler_archive_one(){
-    iconOn($(this));
+    ($(this).css('color') !== 'rgb(255, 255, 255)') ? iconOn($(this)) : iconOff($(this));
 
     $(this).one("click", handler_archive_two);
   }
 
   function handler_archive_two(){
-    iconOff($('.mdi-content-archive'));
+    ($('.mdi-content-archive').css('color') !== 'rgb(255, 255, 255)') ? iconOn($('.mdi-content-archive')) : iconOff($('.mdi-content-archive'));
   }
   //  Let's render the last ten elements
 }(window, jQuery));
