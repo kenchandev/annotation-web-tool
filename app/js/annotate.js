@@ -1,5 +1,7 @@
 (function(global, $) {
 
+    $("<style type='text/css'> .on-annotation{ color:#26A69A; } .off-annotation{ color:#FFFFFF }</style>").appendTo("head");
+
     //  Create the annotation bar... Might reserve this for comments.
 
   var annotationBar = document.createElement("div");
@@ -20,14 +22,14 @@
   document.body.appendChild(annotationBar);
 
   $("<i></i>").addClass('mdi-action-account-box').css('display', 'block').appendTo('.annotation');
-  $("<i></i>").addClass('mdi-editor-mode-edit').css('display', 'block').appendTo('.annotation');
-  $("<i></i>").addClass('mdi-editor-insert-comment').css('display', 'block').appendTo('.annotation');
-  $("<i></i>").addClass('mdi-editor-format-bold').css('display', 'block').appendTo('.annotation');
-  $("<i></i>").addClass('mdi-editor-format-italic').css('display', 'block').appendTo('.annotation');
-  $("<i></i>").addClass('mdi-editor-format-color-text').css('display', 'block').appendTo('.annotation');
-  $("<i></i>").addClass('mdi-editor-format-clear').css('display', 'block').appendTo('.annotation');
-  $("<i></i>").addClass('mdi-action-view-headline').css('display', 'block').appendTo('.annotation');
-  $("<i></i>").addClass('mdi-content-archive').css({
+  $("<i></i>").addClass('mdi-editor-mode-edit off-annotation').css('display', 'block').appendTo('.annotation');
+  $("<i></i>").addClass('mdi-editor-insert-comment off-annotation').css('display', 'block').appendTo('.annotation');
+  $("<i></i>").addClass('mdi-editor-format-bold off-annotation').css('display', 'block').appendTo('.annotation');
+  $("<i></i>").addClass('mdi-editor-format-italic off-annotation').css('display', 'block').appendTo('.annotation');
+  $("<i></i>").addClass('mdi-editor-format-color-text off-annotation').css('display', 'block').appendTo('.annotation');
+  $("<i></i>").addClass('mdi-editor-format-clear off-annotation').css('display', 'block').appendTo('.annotation');
+  $("<i></i>").addClass('mdi-action-view-headline off-annotation').css('display', 'block').appendTo('.annotation');
+  $("<i></i>").addClass('mdi-content-archive off-annotation').css({
     'display': 'block'
     // 'position': 'absolute',
     // 'margin-left': 'auto',
@@ -95,6 +97,12 @@
   document.body.appendChild(commentList);
 
   $("<ul></ul>").addClass('collection').css('border', 'none').appendTo('.comment-list');
+
+  /******
+
+    Time to work on the functions.
+
+  ******/
 
   function getFullCSSPath(el) {
     var names = [];
@@ -168,7 +176,8 @@
     var selectedObj = highlightText('#FEC324');
     var currentRef = insertComment(selectedObj);
 
-    iconOn($('.mdi-editor-insert-comment'));
+     ($('.mdi-editor-insert-comment').hasClass('on-annotation')) ? iconOff($('.mdi-editor-insert-comment')) : iconOn($('.mdi-editor-insert-comment'));
+
     if ($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%") {
       $(".comment-area").css("display", "block").animate({
         "right": "0%"
@@ -311,14 +320,17 @@
 
   function iconOn(selector) {
     selector.off("mouseout");
-    selector.css("color", "#26A69A");
+    // selector.css("color", "#26A69A");
+    selector.removeClass('off-annotation').addClass('on-annotation');
   }
 
   function iconOff(selector) {
+    selector.off("mouseout");
     selector.on("mouseout", function() {
       $(this).css("color", "white");
     });
-    selector.css("color", "white");
+    // selector.css("color", "white");
+    selector.removeClass('on-annotation').addClass('off-annotation');
   }
 
   //  For adding comments...
@@ -326,13 +338,13 @@
   $(".mdi-editor-insert-comment").one("click", handler_comment_one);
 
   function handler_comment_one() {
-    iconOn($(this));
+    ($(this).hasClass('off-annotation')) ? iconOn($(this)) : iconOff($(this));
     toggleCommentFunction();
     $(this).one("click", handler_comment_two);
   }
 
   function handler_comment_two() {
-    iconOff($(this));
+    ($(this).hasClass('off-annotation')) ? iconOn($(this)) : iconOff($(this));
     toggleCommentFunction();
     $(this).one("click", handler_comment_one);
   }
@@ -404,6 +416,10 @@
 
       var selectedObj = highlightText('#FFFFFF', 'bold');
       var currentRef = insertComment(selectedObj);
+
+       ($('.mdi-editor-insert-comment').hasClass('on-annotation')) ? iconOff($('.mdi-editor-insert-comment')) : iconOn($('.mdi-editor-insert-comment'));
+
+
       if ($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%") {
         $(".comment-area").css("display", "block").animate({
           "right": "0%"
@@ -459,6 +475,9 @@
 
       var selectedObj = highlightText('#FEC324');
       var currentRef = insertComment(selectedObj);
+
+       ($('.mdi-editor-insert-comment').hasClass('on-annotation')) ? iconOff($('.mdi-editor-insert-comment')) : iconOn($('.mdi-editor-insert-comment'));
+
       if ($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%") {
         $(".comment-area").css("display", "block").animate({
           "right": "0%"
@@ -525,6 +544,9 @@
 
       var selectedObj = highlightText('#FFFFFF', 'underline');
       var currentRef = insertComment(selectedObj);
+
+       ($('.mdi-editor-insert-comment').hasClass('on-annotation')) ? iconOff($('.mdi-editor-insert-comment')) : iconOn($('.mdi-editor-insert-comment'));
+
       if ($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%") {
         $(".comment-area").css("display", "block").animate({
           "right": "0%"
@@ -580,6 +602,9 @@
 
       var selectedObj = highlightText('#FEC324');
       var currentRef = insertComment(selectedObj);
+
+       ($('.mdi-editor-insert-comment').hasClass('on-annotation')) ? iconOff($('.mdi-editor-insert-comment')) : iconOn($('.mdi-editor-insert-comment'));
+
       if ($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%") {
         $(".comment-area").css("display", "block").animate({
           "right": "0%"
@@ -645,6 +670,9 @@
 
       var selectedObj = highlightText('#FFFFFF', 'italic');
       var currentRef = insertComment(selectedObj);
+
+      ($('.mdi-editor-insert-comment').hasClass('on-annotation')) ? iconOff($('.mdi-editor-insert-comment')) : iconOn($('.mdi-editor-insert-comment'));
+
       if ($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%") {
         $(".comment-area").css("display", "block").animate({
           "right": "0%"
@@ -699,6 +727,9 @@
 
       var selectedObj = highlightText('#FEC324');
       var currentRef = insertComment(selectedObj);
+
+      ($('.mdi-editor-insert-comment').css('color') == 'rgb(255, 255, 255)') ? iconOn($('.mdi-editor-insert-comment')) : iconOff($('.mdi-editor-insert-comment'));
+
       if ($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%") {
         $(".comment-area").css("display", "block").animate({
           "right": "0%"
@@ -763,6 +794,9 @@
 
       var selectedObj = highlightText('#FFFFFF', 'cross');
       var currentRef = insertComment(selectedObj);
+
+      ($('.mdi-editor-insert-comment').css('color') == 'rgb(255, 255, 255)') ? iconOn($('.mdi-editor-insert-comment')) : iconOff($('.mdi-editor-insert-comment'));
+
       if ($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%") {
         $(".comment-area").css("display", "block").animate({
           "right": "0%"
@@ -815,6 +849,9 @@
 
       var selectedObj = highlightText('#FEC324');
       var currentRef = insertComment(selectedObj);
+
+       ($('.mdi-editor-insert-comment').hasClass('on-annotation')) ? iconOff($('.mdi-editor-insert-comment')) : iconOn($('.mdi-editor-insert-comment'));
+
       if ($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%") {
         $(".comment-area").css("display", "block").animate({
           "right": "0%"
@@ -861,29 +898,50 @@
 
   function handler_subcomment_one(){
     //  If it's currently white, let's turn on the icon.
-    console.log($(this).css('color') == 'rgb(255, 255, 255)');
-    ($(this).css('color') == 'rgb(255, 255, 255)') ? iconOn($(this)) : iconOff($(this));
+    ($(this).hasClass('off-annotation')) ? iconOn($(this)) : iconOff($(this));
 
     $(this).one("click", handler_subcomment_two);
   }
 
   function handler_subcomment_two(){
-    ($('.mdi-archive-view-headline').css('color') == 'rgb(255, 255, 255)') ? iconOn($('.mdi-archive-view-headline')) : iconOff($('.mdi-archive-view-headline'));
+     ($('.mdi-action-view-headline').hasClass('on-annotation')) ? iconOff($('.mdi-action-view-headline')) : iconOn($('.mdi-action-view-headline'));
+
+
+    $('.mdi-action-view-headline').one("click", handler_subcomment_one);
   }
 
   //  Time to switch from subselection of comments to all comments
   $(".mdi-content-archive").one("click", handler_archive_one);
 
   function handler_archive_one(){
+    //  Starts as white.
     //  If it's currently white, let's turn on the icon.
-    console.log($(this).css('color') == 'rgb(255, 255, 255)');
-    ($(this).css('color') == 'rgb(255, 255, 255)') ? iconOn($(this)) : iconOff($(this));
+    ($(this).hasClass('off-annotation')) ? iconOn($(this)) : iconOff($(this));
+
+    if ($('.comment-list').css('right') === "-15%" || $('.comment-list').css('right') === "0%") {
+        $(".comment-list").css("display", "block").animate({
+          "right": "0%"
+        }, "fast");
+      }
+
+    //  Dump everything from the Firebase archive.
+    $('.comment-list .collection').empty();
+    for (var property in internalCommentsDict) {
+      var nameObj = internalCommentsDict[property];
+        $('.comment-list .collection').append(
+          '<a href="#!" class="collection-item" style="line-height:0.5rem;" id="' + property + '">' +
+          "<strong>" + nameObj.twitterName + "</strong>" + ": " + "<br/>" + "<em style='color: #252525;'>Highlighted Text</em>" + ": " + "<br/>" + "<span class='highlighted-text'>" + nameObj.highlighted_text + "</span>" + "<br/>" + "<em style='color: #252525;''>Comment</em>" + ": " + "<br/>" + "<span class='comment-text'>" + nameObj.comment + "</span>" +
+          '</li>'
+        );
+    }
 
     $(this).one("click", handler_archive_two);
   }
 
   function handler_archive_two(){
-    ($('.mdi-content-archive').css('color') == 'rgb(255, 255, 255)') ? iconOn($('.mdi-content-archive')) : iconOff($('.mdi-content-archive'));
+    ($('.mdi-content-archive').hasClass('on-annotation')) ? iconOff($('.mdi-content-archive')) : iconOn($('.mdi-content-archive'));
+
+    $('.mdi-content-archive').one("click", handler_archive_one);
   }
   //  Let's render the last ten elements
 }(window, jQuery));
