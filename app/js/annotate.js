@@ -1,6 +1,6 @@
 (function(global, $) {
 
-
+var Annotate = function(container){
   //  AnnotationTool(container tag)
     $("<style type='text/css'> .on-annotation{ color:#26A69A !important; } .off-annotation{ color:#FFFFFF !important; }</style>").appendTo("head");
 
@@ -171,7 +171,7 @@
     $('#text-box').find('.selected-text').contents().unwrap();
   }
 
-  $(".container").on('mouseup', function() {
+  $(container).on('mouseup', function() {
 
     $('.comment-area textarea').off("change");
 
@@ -238,7 +238,7 @@
     }
   }
 
-  $(".container").on('mousedown', function() {
+  $(container).on('mousedown', function() {
 
     unhighlightText();
   });
@@ -412,10 +412,10 @@
 
     iconOn($(this));
 
-    $('.container').off('mouseup');
-    $('.container').off('mousedown');
+    $(container).off('mouseup');
+    $(container).off('mousedown');
 
-    $(".container").on('mouseup', function() {
+    $(container).on('mouseup', function() {
       $('.comment-area textarea').off("change");
 
       var selectedObj = highlightText('#FFFFFF', 'bold');
@@ -462,7 +462,7 @@
     });
     });
 
-    $(".container").on('mousedown', function() {
+    $(container).on('mousedown', function() {
       unhighlightText();
       //  Time to set focus to the comment box...
     });
@@ -475,10 +475,10 @@
   function handler_bold_two() {
     iconOff($('.mdi-editor-format-bold'));
 
-    $('.container').off('mouseup');
-    $('.container').off('mousedown');
+    $(container).off('mouseup');
+    $(container).off('mousedown');
 
-    $(".container").on('mouseup', function() {
+    $(container).on('mouseup', function() {
       $('.comment-area textarea').off("change");
 
       var selectedObj = highlightText('#FEC324');
@@ -524,7 +524,7 @@
     });
     });
 
-    $(".container").on('mousedown', function() {
+    $(container).on('mousedown', function() {
 
       unhighlightText();
     });
@@ -548,10 +548,10 @@
 
     iconOn($(this));
 
-    $(".container").off('mouseup');
-    $(".container").off('mousedown');
+    $(container).off('mouseup');
+    $(container).off('mousedown');
 
-    $(".container").on('mouseup', function() {
+    $(container).on('mouseup', function() {
       $('.comment-area textarea').off("change");
 
       var selectedObj = highlightText('#FFFFFF', 'underline');
@@ -599,7 +599,7 @@
     });
 
 
-    $(".container").on('mousedown', function() {
+    $(container).on('mousedown', function() {
       unhighlightText();
     });
 
@@ -611,10 +611,10 @@
   function handler_underline_two() {
     iconOff($('.mdi-editor-format-color-text'));
 
-    $('.container').off('mouseup');
-    $('.container').off('mousedown');
+    $(container).off('mouseup');
+    $(container).off('mousedown');
 
-    $(".container").on('mouseup', function() {
+    $(container).on('mouseup', function() {
       $('.comment-area textarea').off("change");
 
       var selectedObj = highlightText('#FEC324');
@@ -661,7 +661,7 @@
     });
     });
 
-    $(".container").on('mousedown', function() {
+    $(container).on('mousedown', function() {
       unhighlightText();
     });
 
@@ -684,10 +684,10 @@
 
     iconOn($(this));
 
-    $('.container').off('mouseup');
-    $('.container').off('mousedown');
+    $(container).off('mouseup');
+    $(container).off('mousedown');
 
-    $(".container").on('mouseup', function() {
+    $(container).on('mouseup', function() {
       $('.comment-area textarea').off("change");
 
       var selectedObj = highlightText('#FFFFFF', 'italic');
@@ -733,7 +733,7 @@
     });
     });
 
-    $(".container").on('mousedown', function() {
+    $(container).on('mousedown', function() {
       unhighlightText();
     });
 
@@ -745,10 +745,10 @@
   function handler_italicize_two() {
     iconOff($('.mdi-editor-format-italic'));
 
-    $('.container').off('mouseup');
-    $('.container').off('mousedown');
+    $(container).off('mouseup');
+    $(container).off('mousedown');
 
-    $(".container").on('mouseup', function() {
+    $(container).on('mouseup', function() {
       $('.comment-area textarea').off("change");
 
       var selectedObj = highlightText('#FEC324');
@@ -795,7 +795,7 @@
     });
     });
 
-    $(".container").on('mousedown', function() {
+    $(container).on('mousedown', function() {
 
       unhighlightText();
     });
@@ -817,10 +817,10 @@
 
     iconOn($(this));
 
-    $('.container').off('mouseup');
-    $('.container').off('mousedown');
+    $(container).off('mouseup');
+    $(container).off('mousedown');
 
-    $(".container").on('mouseup', function() {
+    $(container).on('mouseup', function() {
       $('.comment-area textarea').off("change");
 
       var selectedObj = highlightText('#FFFFFF', 'cross');
@@ -867,7 +867,7 @@
     });
     });
 
-    $(".container").on('mousedown', function() {
+    $(container).on('mousedown', function() {
       unhighlightText();
     });
 
@@ -877,10 +877,10 @@
   function handler_crossing_two() {
     iconOff($('.mdi-editor-format-clear'));
 
-    $('.container').off('mouseup');
-    $('.container').off('mousedown');
+    $(container).off('mouseup');
+    $(container).off('mousedown');
 
-    $(".container").on('mouseup', function() {
+    $(container).on('mouseup', function() {
       $('.comment-area textarea').off("change");
 
       var selectedObj = highlightText('#FEC324');
@@ -927,7 +927,7 @@
     });
     });
 
-    $(".container").on('mousedown', function() {
+    $(container).on('mousedown', function() {
       unhighlightText();
     });
 
@@ -984,5 +984,8 @@
 
     $('.mdi-content-archive').one("click", handler_archive_one);
   }
+}
+
+global.Annotate = Annotate;
   //  Let's render the last ten elements
 }(window, jQuery));
