@@ -860,26 +860,30 @@
   $(".mdi-action-view-headline").one("click", handler_subcomment_one);
 
   function handler_subcomment_one(){
-    iconOn($(this));
+    //  If it's currently white, let's turn on the icon.
+    console.log($(this).css('color') == 'rgb(255, 255, 255)');
+    ($(this).css('color') == 'rgb(255, 255, 255)') ? iconOn($(this)) : iconOff($(this));
 
     $(this).one("click", handler_subcomment_two);
   }
 
   function handler_subcomment_two(){
-    iconOff($('.mdi-archive-view-headline'));
+    ($('.mdi-archive-view-headline').css('color') == 'rgb(255, 255, 255)') ? iconOn($('.mdi-archive-view-headline')) : iconOff($('.mdi-archive-view-headline'));
   }
 
   //  Time to switch from subselection of comments to all comments
   $(".mdi-content-archive").one("click", handler_archive_one);
 
   function handler_archive_one(){
-    ($(this).css('color') !== 'rgb(255, 255, 255)') ? iconOn($(this)) : iconOff($(this));
+    //  If it's currently white, let's turn on the icon.
+    console.log($(this).css('color') == 'rgb(255, 255, 255)');
+    ($(this).css('color') == 'rgb(255, 255, 255)') ? iconOn($(this)) : iconOff($(this));
 
     $(this).one("click", handler_archive_two);
   }
 
   function handler_archive_two(){
-    ($('.mdi-content-archive').css('color') !== 'rgb(255, 255, 255)') ? iconOn($('.mdi-content-archive')) : iconOff($('.mdi-content-archive'));
+    ($('.mdi-content-archive').css('color') == 'rgb(255, 255, 255)') ? iconOn($('.mdi-content-archive')) : iconOff($('.mdi-content-archive'));
   }
   //  Let's render the last ten elements
 }(window, jQuery));
