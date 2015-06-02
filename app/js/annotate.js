@@ -31,6 +31,7 @@
 
     if(fontStyle !== undefined)
     {
+      console.log("-------fdja;dfshfdas;jlhfdalkdfa");
       switch(fontStyle){
         case 'bold':
           span.style.fontWeight = 'bold'; 
@@ -50,10 +51,13 @@
     }
     else
     {
+      console.log("Normal!!!");
       span.style.fontWeight = 'normal';
       span.style.fontStyle = 'normal';
       span.style.textDecoration = 'none';
     }
+
+    console.log(span.style);
 
     span.appendChild(selectedText);
     selection.insertNode(span);
@@ -68,6 +72,7 @@
   }
 
   function unhighlightText(){
+    console.log($('#text-box').find('.selected-text'));
       $('#text-box').find('.selected-text').contents().unwrap();
   }
 
@@ -145,9 +150,9 @@
   $("<i></i>").addClass('mdi-editor-format-color-text').css('display', 'block').appendTo('.annotation');
   $("<i></i>").addClass('mdi-editor-format-clear').css('display', 'block').appendTo('.annotation');
   $("<i></i>").addClass('mdi-action-view-headline').css('display', 'block').appendTo('.annotation');
-  $("<i></i>").addClass('mdi-navigation-arrow-forward').css({'display':'block', 'position':'absolute',  'margin-left': 'auto', 'margin-right': 'auto','left': '0','right': '0', 'bottom':'0'}).appendTo('.annotation');
+  $("<i></i>").addClass('mdi-file-cloud-download').css({'display':'block', 'position':'absolute',  'margin-left': 'auto', 'margin-right': 'auto','left': '0','right': '0', 'bottom':'0'}).appendTo('.annotation');
 
-  $(".mdi-action-account-box, .mdi-editor-mode-edit, .mdi-editor-insert-comment, .mdi-editor-format-bold, .mdi-editor-format-italic, .mdi-editor-format-color-text, .mdi-editor-format-clear, .mdi-action-view-headline, .mdi-navigation-arrow-forward").on('mouseover', function(){
+  $(".mdi-action-account-box, .mdi-editor-mode-edit, .mdi-editor-insert-comment, .mdi-editor-format-bold, .mdi-editor-format-italic, .mdi-editor-format-color-text, .mdi-editor-format-clear, .mdi-action-view-headline, .mdi-file-cloud-download").on('mouseover', function(){
     $(this).css({"color":"#26A69A", "cursor":"pointer"});
   }).on('mouseout', function(){
     $(this).css({"color":"white", "cursor":"none"});
@@ -348,9 +353,11 @@
     iconOn($(this));
 
     $('.container').off('mouseup');
+    $('.container').off('mousedown');
+
     $(".container").on('mouseup', function () {
       console.log("Inside");
-      var selectedObj = highlightText('#FEC324', 'bold');
+      var selectedObj = highlightText('#FFFFFF', 'bold');
       var currentRef = insertComment(selectedObj);
       if($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%")
       {
@@ -370,7 +377,6 @@
       });
     });
 
-    $('.container').off('mousedown');
     $(".container").on('mousedown', function () {
       unhighlightText();
       //  Time to set focus to the comment box...
@@ -383,6 +389,9 @@
 
   function handler_bold_two(){
     iconOff($('.mdi-editor-format-bold'));
+
+    $('.container').off('mouseup');
+    $('.container').off('mousedown');
 
     $(".container").on('mouseup', function () {
       var selectedObj = highlightText('#FEC324');
@@ -430,9 +439,11 @@
     iconOn($(this));
 
     $(".container").off('mouseup');
+    $(".container").off('mousedown');
+
     $(".container").on('mouseup', function () {
       console.log("Inside");
-      var selectedObj = highlightText('#FEC324', 'underline');
+      var selectedObj = highlightText('#FFFFFF', 'underline');
       var currentRef = insertComment(selectedObj);
       if($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%")
       {
@@ -452,7 +463,7 @@
       });
     });
 
-    $(".container").off('mousedown');
+    
     $(".container").on('mousedown', function () {
       unhighlightText();
     });
@@ -464,6 +475,9 @@
 
   function handler_underline_two(){
     iconOff($('.mdi-editor-format-color-text'));
+
+        $('.container').off('mouseup');
+    $('.container').off('mousedown');
 
     $(".container").on('mouseup', function () {
       var selectedObj = highlightText('#FEC324');
@@ -509,10 +523,12 @@
 
     iconOn($(this));
 
-    $(".container").off('mouseup');
+        $('.container').off('mouseup');
+    $('.container').off('mousedown');
+
     $(".container").on('mouseup', function () {
       console.log("Inside");
-      var selectedObj = highlightText('#FEC324', 'italic');
+      var selectedObj = highlightText('#FFFFFF', 'italic');
       var currentRef = insertComment(selectedObj);
       if($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%")
       {
@@ -532,7 +548,6 @@
       });
     });
 
-    $(".container").off('mousedown');
     $(".container").on('mousedown', function () {
       unhighlightText();
     });
@@ -544,6 +559,9 @@
 
   function handler_italicize_two(){
     iconOff($('.mdi-editor-format-italic'));
+
+        $('.container').off('mouseup');
+    $('.container').off('mousedown');
 
     $(".container").on('mouseup', function () {
       var selectedObj = highlightText('#FEC324');
@@ -588,10 +606,12 @@
 
     iconOn($(this));
 
-    $(".container").off('mouseup');
+        $('.container').off('mouseup');
+    $('.container').off('mousedown');
+
     $(".container").on('mouseup', function () {
       console.log("Inside");
-      var selectedObj = highlightText('#FEC324', 'cross');
+      var selectedObj = highlightText('#FFFFFF', 'cross');
       var currentRef = insertComment(selectedObj);
       if($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%")
       {
@@ -611,7 +631,6 @@
       });
     });
 
-    $(".container").off('mousedown');
     $(".container").on('mousedown', function () {
       unhighlightText();
     });
@@ -624,6 +643,8 @@
   function handler_crossing_two(){
     iconOff($('.mdi-editor-format-clear'));
 
+        $('.container').off('mouseup');
+    $('.container').off('mousedown');
   
     $(".container").on('mouseup', function () {
       var selectedObj = highlightText('#FEC324');
