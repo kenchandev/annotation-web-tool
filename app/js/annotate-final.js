@@ -2,7 +2,7 @@
 
 
   //  AnnotationTool(container tag)
-    $("<style type='text/css'> .on-annotation{ color:#26A69A !important; } .off-annotation{ color:#FFFFFF !important; }</style>").appendTo("head");
+    $("<style type='text/css'> .on-annotation{ color:#26A69A; } .off-annotation{ color:#FFFFFF }</style>").appendTo("head");
 
     //  Create the annotation bar... Might reserve this for comments.
 
@@ -178,7 +178,7 @@
     var selectedObj = highlightText('#FEC324');
     var currentRef = insertComment(selectedObj);
 
-     iconOn($('.mdi-editor-insert-comment'));
+     ($('.mdi-editor-insert-comment').hasClass('on-annotation')) ? iconOff($('.mdi-editor-insert-comment')) : iconOn($('.mdi-editor-insert-comment'));
 
     if ($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%") {
       $(".comment-area").css("display", "block").animate({
@@ -421,7 +421,7 @@
       var selectedObj = highlightText('#FFFFFF', 'bold');
       var currentRef = insertComment(selectedObj);
 
-       iconOn($('.mdi-editor-insert-comment'));
+       ($('.mdi-editor-insert-comment').hasClass('on-annotation')) ? iconOff($('.mdi-editor-insert-comment')) : iconOn($('.mdi-editor-insert-comment'));
 
 
       if ($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%") {
@@ -484,7 +484,7 @@
       var selectedObj = highlightText('#FEC324');
       var currentRef = insertComment(selectedObj);
 
-       iconOn($('.mdi-editor-insert-comment'));
+       ($('.mdi-editor-insert-comment').hasClass('on-annotation')) ? iconOff($('.mdi-editor-insert-comment')) : iconOn($('.mdi-editor-insert-comment'));
 
       if ($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%") {
         $(".comment-area").css("display", "block").animate({
@@ -557,7 +557,7 @@
       var selectedObj = highlightText('#FFFFFF', 'underline');
       var currentRef = insertComment(selectedObj);
 
-      iconOn($('.mdi-editor-insert-comment'));
+       ($('.mdi-editor-insert-comment').hasClass('on-annotation')) ? iconOff($('.mdi-editor-insert-comment')) : iconOn($('.mdi-editor-insert-comment'));
 
       if ($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%") {
         $(".comment-area").css("display", "block").animate({
@@ -620,7 +620,7 @@
       var selectedObj = highlightText('#FEC324');
       var currentRef = insertComment(selectedObj);
 
-       iconOn($('.mdi-editor-insert-comment'));
+       ($('.mdi-editor-insert-comment').hasClass('on-annotation')) ? iconOff($('.mdi-editor-insert-comment')) : iconOn($('.mdi-editor-insert-comment'));
 
       if ($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%") {
         $(".comment-area").css("display", "block").animate({
@@ -680,7 +680,7 @@
     //  Must turn off underlining, bolding and crossing.
     iconOff($('.mdi-editor-format-bold'));
     iconOff($('.mdi-editor-format-color-text'));
-    iconOff($('.mdi-editor-format-clear'));
+iconOff($('.mdi-editor-format-clear'));
 
     iconOn($(this));
 
@@ -693,13 +693,14 @@
       var selectedObj = highlightText('#FFFFFF', 'italic');
       var currentRef = insertComment(selectedObj);
 
-      iconOn($('.mdi-editor-insert-comment'));
+      ($('.mdi-editor-insert-comment').hasClass('on-annotation')) ? iconOff($('.mdi-editor-insert-comment')) : iconOn($('.mdi-editor-insert-comment'));
 
       if ($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%") {
         $(".comment-area").css("display", "block").animate({
           "right": "0%"
         }, "fast");
       }
+
 
     iconOn($('.mdi-action-view-headline'));
     iconOff($('.mdi-content-archive'));
@@ -754,7 +755,7 @@
       var selectedObj = highlightText('#FEC324');
       var currentRef = insertComment(selectedObj);
 
-      iconOn($('.mdi-editor-insert-comment'));
+      ($('.mdi-editor-insert-comment').hasClass('on-annotation')) ? iconOff($('.mdi-editor-insert-comment')) : iconOn($('.mdi-editor-insert-comment'));
 
       if ($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%") {
         $(".comment-area").css("display", "block").animate({
@@ -826,7 +827,7 @@
       var selectedObj = highlightText('#FFFFFF', 'cross');
       var currentRef = insertComment(selectedObj);
 
-      iconOn($('.mdi-editor-insert-comment'));
+      ($('.mdi-editor-insert-comment').hasClass('on-annotation')) ? iconOff($('.mdi-editor-insert-comment')) : iconOn($('.mdi-editor-insert-comment'));
 
       if ($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%") {
         $(".comment-area").css("display", "block").animate({
@@ -886,7 +887,7 @@
       var selectedObj = highlightText('#FEC324');
       var currentRef = insertComment(selectedObj);
 
-       iconOn($('.mdi-editor-insert-comment'));
+       ($('.mdi-editor-insert-comment').hasClass('on-annotation')) ? iconOff($('.mdi-editor-insert-comment')) : iconOn($('.mdi-editor-insert-comment'));
 
       if ($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%") {
         $(".comment-area").css("display", "block").animate({
