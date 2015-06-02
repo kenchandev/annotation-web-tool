@@ -24,8 +24,8 @@ var Annotate = function(container){
   document.body.appendChild(annotationBar);
 
   $("<i></i>").addClass('mdi-action-account-box').css('display', 'block').appendTo('.annotation');
-  $("<i></i>").addClass('mdi-editor-mode-edit off-annotation').css('display', 'block').appendTo('.annotation');
   $("<i></i>").addClass('mdi-editor-insert-comment off-annotation').css('display', 'block').appendTo('.annotation');
+  $("<i></i>").addClass('mdi-editor-mode-edit off-annotation').css('display', 'block').appendTo('.annotation');
   $("<i></i>").addClass('mdi-editor-format-bold off-annotation').css('display', 'block').appendTo('.annotation');
   $("<i></i>").addClass('mdi-editor-format-italic off-annotation').css('display', 'block').appendTo('.annotation');
   $("<i></i>").addClass('mdi-editor-format-color-text off-annotation').css('display', 'block').appendTo('.annotation');
@@ -42,7 +42,9 @@ var Annotate = function(container){
   }).appendTo('.annotation');
 
   var rootRef = new Firebase("https://web-annotation.firebaseio.com/");
-  var commentsRef = rootRef.child("comments");
+  //  URL's seem quite unique, but Firebase does not support properties with punctuation marks.
+  var urlRef = rootRef.child(window.location.href.replace(/[\.,-\/#!$%\^&\*;:{}=\-_`~()]/g,""));
+  var commentsRef = urlRef.child("comments");
   var twitterUserID = "404";
   var twitterName = "Anonymous";
   var twitterHandle = "@Anonymous";
@@ -211,14 +213,22 @@ var Annotate = function(container){
 
     // console.log( rootRef.child(currentRef.name()));
     $('.comment-area textarea').focus();
-    $('.comment-area textarea').change(function() {
+    $('.comment-area textarea').keyup(function() {
       currentRef.update({
         comment: $('.comment-area textarea').val()
-      });
+      }, onComplete);
       //  Need to reflect this change in real-time
     });
 
   });
+
+  var onComplete = function(error) {
+    if (error) {
+      console.log('Synchronization failed');
+    } else {
+      console.log('Synchronization succeeded');
+    }
+  };
 
   function insertComment(selectedObj) {
 
@@ -293,10 +303,11 @@ var Annotate = function(container){
   });
 
   commentsRef.on('child_changed', function(snapshot) {
-    var comment = snapshot.val().comment;
-    var name = snapshot.name().substring(1);
-    $("#" + name + " span.comment-text").text(comment);
-    internalCommentsDict[name].comment = comment;
+      console.log("GGGGGGGGGGGGGGGGGGGGGGGG");
+      var comment = snapshot.val().comment;
+      var name = snapshot.name().substring(1);
+      $("#" + name + " span.comment-text").text(comment);
+      internalCommentsDict[name].comment = comment;
   });
 
   commentsRef.on("child_removed", function(snapshot) {
