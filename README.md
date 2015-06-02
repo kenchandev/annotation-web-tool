@@ -2,7 +2,7 @@
 
 This project features an independent JavaScript library for introducing an annotation web tool to a simple HTML5 web page. Users can comment on certain sections of the web page in real-time!
 
-Began development on June 1, 2014.
+Began development on June 1, 2015.
 
 Note: This library requires jQuery, Materialize and Firebase.
 
@@ -12,7 +12,6 @@ Note: This library requires jQuery, Materialize and Firebase.
 
 ## Remaining Issues/Tasks
 
-- Refactoring Code!
-- Separating shown comments based on selected text's location.
+- Refactoring Code! 
 - Support open annotation and rich text content.
 
