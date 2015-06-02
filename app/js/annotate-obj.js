@@ -3,6 +3,7 @@
   function getFullCSSPath(el){
     var names = [];
     while (el.parentNode){
+      console.log(el.parentNode);
       if (el.id){
         names.unshift('#'+el.id);
         break;
@@ -30,6 +31,7 @@
 
     if(fontStyle !== undefined)
     {
+      console.log("-------fdja;dfshfdas;jlhfdalkdfa");
       switch(fontStyle){
         case 'bold':
           span.style.fontWeight = 'bold'; 
@@ -49,13 +51,18 @@
     }
     else
     {
+      console.log("Normal!!!");
       span.style.fontWeight = 'normal';
       span.style.fontStyle = 'normal';
       span.style.textDecoration = 'none';
     }
 
+    console.log(span.style);
+
     span.appendChild(selectedText);
     selection.insertNode(span);
+
+    console.log();
 
     return {
       text:span.innerText,
@@ -65,6 +72,7 @@
   }
 
   function unhighlightText(){
+    console.log($('#text-box').find('.selected-text'));
       $('#text-box').find('.selected-text').contents().unwrap();
   }
 
@@ -92,6 +100,7 @@
   });
 
   function insertComment(selectedObj){
+    console.log(selectedObj);
     if(selectedObj.text)
       //  Returns a reference to the object inserted thus far.
       return commentsRef.push({
@@ -182,6 +191,7 @@
 
     var newDiv = $("<div/>").addClass("comment").attr("id",snapshot.name()).appendTo("#comments");
 
+    console.log(item);
     $('.comment-list .collection').append(
       '<a href="#!" class="collection-item" style="line-height:0.5rem;" id="'+ snapshot.name().substring(1) +'">' + 
         "<strong>" + item.twitterName + "</strong>" + ": " + "<br/>" + "<em style='color: #252525;'>Highlighted Text</em>" + ": " + "<br/>" + "<span class='highlighted-text'>" + item.highlighted_text + "</span>" + "<br/>" + "<em style='color: #252525;''>Comment</em>" + ": " + "<br/>" + "<span class='comment-text'>" + item.comment + "</span>" + 
@@ -190,6 +200,7 @@
   });
 
   commentsRef.on('child_changed', function(snapshot){
+    console.log(snapshot.val());
     $("#" + snapshot.name().substring(1) + " span.comment-text").text(snapshot.val().comment)
   });
 
@@ -204,6 +215,7 @@
         console.log("Login Failed!", error);
       } else {
         console.log("Authenticated successfully with payload:", authData);
+        console.log(authData);
         twitterUserID = authData.uid.split(':')[1];
         twitterName = authData.twitter.displayName;
         twitterHandle = authData.twitter.username;
@@ -346,6 +358,7 @@
     $('.container').off('mousedown');
 
     $(".container").on('mouseup', function () {
+      console.log("Inside");
       var selectedObj = highlightText('#FFFFFF', 'bold');
       var currentRef = insertComment(selectedObj);
       if($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%")
@@ -431,6 +444,7 @@
     $(".container").off('mousedown');
 
     $(".container").on('mouseup', function () {
+      console.log("Inside");
       var selectedObj = highlightText('#FFFFFF', 'underline');
       var currentRef = insertComment(selectedObj);
       if($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%")
@@ -515,6 +529,7 @@
     $('.container').off('mousedown');
 
     $(".container").on('mouseup', function () {
+      console.log("Inside");
       var selectedObj = highlightText('#FFFFFF', 'italic');
       var currentRef = insertComment(selectedObj);
       if($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%")
@@ -597,6 +612,7 @@
     $('.container').off('mousedown');
 
     $(".container").on('mouseup', function () {
+      console.log("Inside");
       var selectedObj = highlightText('#FFFFFF', 'cross');
       var currentRef = insertComment(selectedObj);
       if($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%")
@@ -665,8 +681,7 @@
 
 
 
-  //  Time to switch from subselection of comments to all comments
-
+  //  For each CSS selector for an HTML item, store into Firebase...
 
   //  Let's render the last ten elements
 }(window, jQuery));
