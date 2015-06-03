@@ -48,6 +48,9 @@
     var twitterUserID = "404";
     var twitterName = "Anonymous";
     var twitterHandle = "@Anonymous";
+    var currentRef;
+    var parentCSSRefPath = null;
+    var printAllFlag = true;
 
     var internalCommentsDict = {};
 
@@ -178,7 +181,8 @@
       $('.comment-area textarea').off("keyup");
 
       var selectedObj = highlightText('#FEC324');
-      var currentRef = insertComment(selectedObj);
+      parentCSSRefPath = selectedObj.parentCSSPath;
+      currentRef = insertComment(selectedObj);
 
       iconOn($('.mdi-editor-insert-comment'));
 
@@ -190,6 +194,8 @@
 
       iconOn($('.mdi-action-view-headline'));
       iconOff($('.mdi-content-archive'));
+
+      printAllFlag = false;
 
       if ($('.comment-list').css('right') === "-15%" || $('.comment-list').css('right') === "0%") {
         $(".comment-list").css("display", "block").animate({
@@ -232,7 +238,6 @@
     function insertComment(selectedObj) {
 
       if (selectedObj.text) {
-        console.log(selectedObj.text);
         //  Returns a reference to the object inserted thus far.
         return commentsRef.push({
           twitterUserID: twitterUserID,
@@ -303,13 +308,12 @@
 
       internalCommentsDict[name] = item;
 
-      console.log(internalCommentsDict);
-
-      $('.comment-list .collection').append(
-        '<a href="#!" class="collection-item" style="line-height:0.5rem;" id="' + name + '">' +
-        "<strong>" + item.twitterName + "</strong>" + ": " + "<br/>" + "<em style='color: #252525;'>Highlighted Text</em>" + ": " + "<br/>" + "<span class='highlighted-text'>" + item.highlighted_text + "</span>" + "<br/>" + "<em style='color: #252525;''>Comment</em>" + ": " + "<br/>" + "<span class='comment-text'>" + item.comment + "</span>" +
-        '</li>'
-      );
+      if(item.parentPath === parentCSSRefPath || printAllFlag === true)
+        $('.comment-list .collection').append(
+          '<a href="#!" class="collection-item" style="line-height:0.5rem;" id="' + name + '">' +
+          "<strong>" + item.twitterName + "</strong>" + ": " + "<br/>" + "<em style='color: #252525;'>Highlighted Text</em>" + ": " + "<br/>" + "<span class='highlighted-text'>" + item.highlighted_text + "</span>" + "<br/>" + "<em style='color: #252525;''>Comment</em>" + ": " + "<br/>" + "<span class='comment-text'>" + item.comment + "</span>" +
+          '</li>'
+        );
     });
 
     commentsRef.on('child_changed', function(snapshot) {
@@ -444,7 +448,7 @@
         $('.comment-area textarea').off("keyup");
 
         var selectedObj = highlightText('#FFFFFF', 'bold');
-        var currentRef = insertComment(selectedObj);
+        currentRef = insertComment(selectedObj);
 
         iconOn($('.mdi-editor-insert-comment'));
 
@@ -457,6 +461,8 @@
 
         iconOn($('.mdi-action-view-headline'));
         iconOff($('.mdi-content-archive'));
+
+        printAllFlag = false;
 
         if ($('.comment-list').css('right') === "-15%" || $('.comment-list').css('right') === "0%") {
           $(".comment-list").css("display", "block").animate({
@@ -508,7 +514,7 @@
         $('.comment-area textarea').off("keyup");
 
         var selectedObj = highlightText('#FEC324');
-        var currentRef = insertComment(selectedObj);
+        currentRef = insertComment(selectedObj);
 
         iconOn($('.mdi-editor-insert-comment'));
 
@@ -520,6 +526,8 @@
 
         iconOn($('.mdi-action-view-headline'));
         iconOff($('.mdi-content-archive'));
+
+        printAllFlag = false;
 
         if ($('.comment-list').css('right') === "-15%" || $('.comment-list').css('right') === "0%") {
           $(".comment-list").css("display", "block").animate({
@@ -583,8 +591,7 @@
         $('.comment-area textarea').off("keyup");
 
         var selectedObj = highlightText('#FFFFFF', 'underline');
-        var currentRef = insertComment(selectedObj);
-        console.log(currentRef);
+        currentRef = insertComment(selectedObj);
 
         iconOn($('.mdi-editor-insert-comment'));
 
@@ -597,6 +604,8 @@
 
         iconOn($('.mdi-action-view-headline'));
         iconOff($('.mdi-content-archive'));
+
+        printAllFlag = false;
 
         if ($('.comment-list').css('right') === "-15%" || $('.comment-list').css('right') === "0%") {
           $(".comment-list").css("display", "block").animate({
@@ -648,7 +657,7 @@
         $('.comment-area textarea').off("keyup");
 
         var selectedObj = highlightText('#FEC324');
-        var currentRef = insertComment(selectedObj);
+        currentRef = insertComment(selectedObj);
 
         iconOn($('.mdi-editor-insert-comment'));
 
@@ -661,6 +670,8 @@
 
         iconOn($('.mdi-action-view-headline'));
         iconOff($('.mdi-content-archive'));
+
+        printAllFlag = false;
 
         if ($('.comment-list').css('right') === "-15%" || $('.comment-list').css('right') === "0%") {
           $(".comment-list").css("display", "block").animate({
@@ -723,7 +734,7 @@
         $('.comment-area textarea').off("keyup");
 
         var selectedObj = highlightText('#FFFFFF', 'italic');
-        var currentRef = insertComment(selectedObj);
+        currentRef = insertComment(selectedObj);
 
         iconOn($('.mdi-editor-insert-comment'));
 
@@ -735,6 +746,8 @@
 
         iconOn($('.mdi-action-view-headline'));
         iconOff($('.mdi-content-archive'));
+
+        printAllFlag = false;
 
         if ($('.comment-list').css('right') === "-15%" || $('.comment-list').css('right') === "0%") {
           $(".comment-list").css("display", "block").animate({
@@ -785,7 +798,7 @@
         $('.comment-area textarea').off("keyup");
 
         var selectedObj = highlightText('#FEC324');
-        var currentRef = insertComment(selectedObj);
+        currentRef = insertComment(selectedObj);
 
         iconOn($('.mdi-editor-insert-comment'));
 
@@ -798,6 +811,8 @@
 
         iconOn($('.mdi-action-view-headline'));
         iconOff($('.mdi-content-archive'));
+
+        printAllFlag = false;
 
         if ($('.comment-list').css('right') === "-15%" || $('.comment-list').css('right') === "0%") {
           $(".comment-list").css("display", "block").animate({
@@ -859,7 +874,7 @@
         $('.comment-area textarea').off("keyup");
 
         var selectedObj = highlightText('#FFFFFF', 'cross');
-        var currentRef = insertComment(selectedObj);
+        currentRef = insertComment(selectedObj);
 
         iconOn($('.mdi-editor-insert-comment'));
 
@@ -872,6 +887,8 @@
 
         iconOn($('.mdi-action-view-headline'));
         iconOff($('.mdi-content-archive'));
+
+        printAllFlag = false;
 
         if ($('.comment-list').css('right') === "-15%" || $('.comment-list').css('right') === "0%") {
           $(".comment-list").css("display", "block").animate({
@@ -920,7 +937,7 @@
         $('.comment-area textarea').off("keyup");
 
         var selectedObj = highlightText('#FEC324');
-        var currentRef = insertComment(selectedObj);
+        currentRef = insertComment(selectedObj);
 
         iconOn($('.mdi-editor-insert-comment'));
 
@@ -933,6 +950,8 @@
 
         iconOn($('.mdi-action-view-headline'));
         iconOff($('.mdi-content-archive'));
+
+        printAllFlag = false;
 
         if ($('.comment-list').css('right') === "-15%" || $('.comment-list').css('right') === "0%") {
           $(".comment-list").css("display", "block").animate({
@@ -994,6 +1013,8 @@
       //  If it's currently white, let's turn on the icon.
       ($(this).hasClass('off-annotation')) ? iconOn($(this)): iconOff($(this));
 
+      printAllFlag = true;
+
       if ($('.comment-list').css('right') === "-15%" || $('.comment-list').css('right') === "0%") {
         $(".comment-list").css("display", "block").animate({
           "right": "0%"
@@ -1015,6 +1036,7 @@
     }
 
     function handler_archive_two() {
+      printAllFlag = false;
       ($('.mdi-content-archive').hasClass('on-annotation')) ? iconOff($('.mdi-content-archive')): iconOn($('.mdi-content-archive'));
 
       $('.mdi-content-archive').one("click", handler_archive_one);
