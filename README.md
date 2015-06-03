@@ -8,7 +8,7 @@ Note: This library requires jQuery, Materialize and Firebase.
 
 ## Live Demo
 
-[Visit the demo]()
+[Visit the demo](http://kenchan23.github.io/AnnotationWebTool/app/index.html)
 
 ## Remaining Issues/Tasks
 
