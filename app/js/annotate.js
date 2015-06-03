@@ -263,7 +263,7 @@
 
     function hoverActions()
     {
-      var listOfElements = ".off-annotation";
+      var listOfElements = ".off-annotation, .mdi-action-account-box";
       var excludedElements = ".on-annotation";
 
       $(listOfElements).not(excludedElements).off('mouseover');
