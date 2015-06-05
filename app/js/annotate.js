@@ -261,8 +261,7 @@
     });
 
 
-    function hoverActions()
-    {
+    function hoverActions() {
       var listOfElements = ".off-annotation, .mdi-action-account-box";
       var excludedElements = ".on-annotation";
 
@@ -308,7 +307,7 @@
 
       internalCommentsDict[name] = item;
 
-      if(item.parentPath === parentCSSRefPath || printAllFlag === true)
+      if (item.parentPath === parentCSSRefPath || printAllFlag === true)
         $('.comment-list .collection').append(
           '<a href="#!" class="collection-item" style="line-height:0.5rem;" id="' + name + '">' +
           "<strong>" + item.twitterName + "</strong>" + ": " + "<br/>" + "<em style='color: #252525;'>Highlighted Text</em>" + ": " + "<br/>" + "<span class='highlighted-text'>" + item.highlighted_text + "</span>" + "<br/>" + "<em style='color: #252525;''>Comment</em>" + ": " + "<br/>" + "<span class='comment-text'>" + item.comment + "</span>" +
