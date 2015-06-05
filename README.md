@@ -46,3 +46,7 @@ Being able to toggle allows the tool to be non-intrusive as the user reads a web
 - Refactoring Code! 
 - Support open annotation and rich text content.
 
+## Running Locally After Cloning
+
+grunt && ./execute.sh
+
