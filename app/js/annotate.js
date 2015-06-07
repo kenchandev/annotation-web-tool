@@ -11,7 +11,7 @@
 
   annotationBar.className = "annotation"
   annotationBar.style.width = "5%";
-  annotationBar.style.height = "50%";
+  annotationBar.style.height = "14.4em"; //  9 icons, 1.6em each.
   annotationBar.style.background = "#252525";
   annotationBar.style.color = "white";
   annotationBar.style.top = "25%";
@@ -20,6 +20,7 @@
   annotationBar.style.textAlign = "center";
   annotationBar.style.right = "0px";
   annotationBar.style.fontSize = "1.6em";
+  annotationBar.style.lineHeight = "1.6em";
   annotationBar.style.boxShadow = "0px 0px 16px rgba(0, 0, 0, 0.6)";
 
   document.body.appendChild(annotationBar);
@@ -135,6 +136,7 @@
     $('.materialize-textarea').val("");
 
     var selection = window.getSelection().getRangeAt(0);
+    console.log(selection);
     var selectedText = selection.extractContents();
     var span = document.createElement('span');
     span.style.backgroundColor = hexColor;
