@@ -1,5 +1,5 @@
 # Annotation Web Tool
-
+ 
 This project features an independent JavaScript library for introducing an annotation web tool to a simple HTML5 web page. Users can comment on certain sections of the web page in real-time!
 
 Assumption: The use case is a simple HTML5 webpage. Developed on a standard laptop.
