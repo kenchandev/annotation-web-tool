@@ -434,12 +434,16 @@
     var selector = (typeof(selector1) !== 'undefined' && typeof(selector2) !== 'undefined' && typeof(selector3) !== 'undefined' && typeof(selector4) !== 'undefined') ? selector1.add(selector2).add(selector3).add(selector4) : selector1;
 
     selector.off("mouseout");
+    selector.off("click");
     selector.on("mouseout", function() {
       $(this).css("color", "white");
     });
     // selector.css("color", "white");
     selector.removeClass('on-annotation').addClass('off-annotation');
     selector.css('color', '#FFFFFF');
+    selector.one("click", function() {
+      handler_one($(this));
+    });
   }
 
   /***
