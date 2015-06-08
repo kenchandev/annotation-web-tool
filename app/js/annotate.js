@@ -1,7 +1,9 @@
+//  Comments can be edited in Firebase, but not on the front-end due to integrity issues.
 (function(global, $) {
 
+  //  Grab the parameters!
   var container = $("script#annotate").attr("container");
-
+  var elements = $("script#annotate").attr("elements");
   //  Additional styles for "on" and "off" annotations.
   $("<style type='text/css'> .on-annotation{ color:#26A69A; } .off-annotation{ color:#FFFFFF;}</style>").appendTo("head");
 
@@ -54,11 +56,9 @@
   var commentArea = document.createElement("div");
 
   commentArea.className = "comment-area";
-
   commentArea.style.background = "#252525";
   commentArea.style.width = "15%";
   commentArea.style.height = "20%";
-  //  This style is necessary for animating out.
   commentArea.style.padding = "0px 10px";
   commentArea.style.display = "none";
   commentArea.style.top = "0%";
@@ -80,11 +80,9 @@
   var commentList = document.createElement("div");
 
   commentList.className = "comment-list container";
-
   commentList.style.background = "#252525";
   commentList.style.width = "15%";
   commentList.style.height = "20%";
-  //  This style is necessary for animating out.
   commentList.style.display = "none";
   commentList.style.top = "80%";
   commentList.style.bottom = "0%";
@@ -99,6 +97,9 @@
   document.body.appendChild(commentList);
 
   $("<ul></ul>").addClass('collection').css('border', 'none').appendTo('.comment-list');
+
+  //  Append comment icons to the end of each paragraph/header tag
+  $("<i></i>").addClass("mdi-notification-sms-failed").appendTo(elements);
 
   /******
 
@@ -127,9 +128,13 @@
   function highlightText(hexColor, fontStyle) {
     //  Clear the old comment
     $('.materialize-textarea').val("");
-
+    console.log(window.getSelection());
     var selection = window.getSelection().getRangeAt(0);
     console.log(typeof(selection));
+
+
+
+
     var selectedText = selection.extractContents();
     var spanStyles = {
       backgroundColor: hexColor,
@@ -167,6 +172,11 @@
     span.appendChild(selectedText);
     selection.insertNode(span);
 
+    console.log("Offset Values");
+    console.log(document.querySelector(getFullCSSPath(span.parentNode)).selectionStart);
+    console.log(document.querySelector(getFullCSSPath(span.parentNode)).selectionEnd);
+    console.log("Good??");
+
     return {
       spanStyles: spanStyles,
       selectionObject: selection,
@@ -181,7 +191,8 @@
   }
 
   $(container).on('mouseup', function() {
-    mouseupAction('#FEC324');
+    console.log(this.selectionStart);
+    mouseupAction(1, '#FEC324');
   });
 
   var onComplete = function(error) {
@@ -240,19 +251,16 @@
   $('.mdi-editor-format-bold').on('click', function() {
     $('.annotate').css("color", "#26A69A");
     $(this).css("color", "#26A69A");
-
   });
 
   $('.mdi-editor-format-italic').on('click', function() {
     $('.annotate').css("color", "#26A69A");
     $(this).css("color", "#26A69A");
-
   });
 
   $('.mdi-editor-format-color-text').on('click', function() {
     $('.annotate').css("color", "#26A69A");
     $(this).css("color", "#26A69A");
-
   });
 
   commentsRef.on('child_added', function(snapshot) {
@@ -466,7 +474,7 @@
     $(container).off('mousedown');
 
     $(container).on('mouseup', function() {
-      mouseupAction(cssColor, cssStyle);
+      mouseupAction(0, cssColor, cssStyle);
     });
 
     $(container).on('mousedown', function() {
@@ -480,11 +488,11 @@
     });
   }
 
-  function mouseupAction(cssColor, cssStyle) {
+  function mouseupAction(parentRefFlag, cssColor, cssStyle) {
     $('.comment-area textarea').off("keyup");
 
     var selectedObj = highlightText(cssColor, cssStyle);
-    parentCSSRefPath = selectedObj.parentCSSPath;
+    if (parentRefFlag === 1) parentCSSRefPath = selectedObj.parentCSSPath;
     currentRef = insertComment(selectedObj);
 
     iconOn($('.mdi-editor-insert-comment'));
@@ -498,26 +506,7 @@
     iconOn($('.mdi-action-view-headline'));
     iconOff($('.mdi-content-archive'));
 
-    printAllFlag = false;
-
-    if ($('.comment-list').css('right') === "-15%" || $('.comment-list').css('right') === "0%") {
-      $(".comment-list").css("display", "block").animate({
-        "right": "0%"
-      }, "fast");
-    }
-
-    //  Let's empty this collection and fill it with comments within this section.
-    $('.comment-list .collection').empty();
-    for (var property in internalCommentsDict) {
-      var nameObj = internalCommentsDict[property];
-      if (nameObj.parentPath == selectedObj.parentCSSPath) {
-        $('.comment-list .collection').append(
-          '<a href="#!" class="collection-item" style="line-height:0.5rem;" id="' + property + '">' +
-          "<strong>" + nameObj.twitterName + "</strong>" + ": " + "<br/>" + "<em style='color: #252525;'>Highlighted Text</em>" + ": " + "<br/>" + "<span class='highlighted-text'>" + nameObj.highlighted_text + "</span>" + "<br/>" + "<em style='color: #252525;''>Comment</em>" + ": " + "<br/>" + "<span class='comment-text'>" + nameObj.comment + "</span>" +
-          '</li>'
-        );
-      }
-    }
+    printComments(false, selectedObj);
 
     $('.comment-area textarea').focus();
     $('.comment-area textarea').keyup(function() {
@@ -554,24 +543,7 @@
     //  If it's currently white, let's turn on the icon.
     ($(this).hasClass('off-annotation')) ? iconOn($(this)): iconOff($(this));
 
-    printAllFlag = true;
-
-    if ($('.comment-list').css('right') === "-15%" || $('.comment-list').css('right') === "0%") {
-      $(".comment-list").css("display", "block").animate({
-        "right": "0%"
-      }, "fast");
-    }
-
-    //  Dump everything from the Firebase archive.
-    $('.comment-list .collection').empty();
-    for (var property in internalCommentsDict) {
-      var nameObj = internalCommentsDict[property];
-      $('.comment-list .collection').append(
-        '<a href="#!" class="collection-item" style="line-height:0.5rem;" id="' + property + '">' +
-        "<strong>" + nameObj.twitterName + "</strong>" + ": " + "<br/>" + "<em style='color: #252525;'>Highlighted Text</em>" + ": " + "<br/>" + "<span class='highlighted-text'>" + nameObj.highlighted_text + "</span>" + "<br/>" + "<em style='color: #252525;''>Comment</em>" + ": " + "<br/>" + "<span class='comment-text'>" + nameObj.comment + "</span>" +
-        '</li>'
-      );
-    }
+    printComments(true);
 
     $(this).one("click", handler_archive_two);
   }
@@ -581,6 +553,40 @@
     ($('.mdi-content-archive').hasClass('on-annotation')) ? iconOff($('.mdi-content-archive')): iconOn($('.mdi-content-archive'));
 
     $('.mdi-content-archive').one("click", handler_archive_one);
+  }
+
+  function printComments(printFlag, selectedObj) {
+    printAllFlag = printFlag;
+
+    if ($('.comment-list').css('right') === "-15%" || $('.comment-list').css('right') === "0%") {
+      $(".comment-list").css("display", "block").animate({
+        "right": "0%"
+      }, "fast");
+    }
+
+    //  Dump everything from the Firebase archive.
+    $('.comment-list .collection').empty();
+
+    if (typeof(selectedObj) !== 'undefined') {
+      for (var property in internalCommentsDict) {
+        var nameObj = internalCommentsDict[property];
+        if (nameObj.parentPath == selectedObj.parentCSSPath && printAllFlag == false) //  Print comments for particular section.
+          renderComments(property, nameObj);
+      }
+    } else {
+      for (var property in internalCommentsDict) {
+        var nameObj = internalCommentsDict[property]; //  Print all comments.
+        renderComments(property, nameObj);
+      }
+    }
+  }
+
+  function renderComments(property, nameObj) {
+    $('.comment-list .collection').append(
+      '<a href="#!" class="collection-item" style="line-height:0.5rem;" id="' + property + '">' +
+      "<strong>" + nameObj.twitterName + "</strong>" + ": " + "<br/>" + "<em style='color: #252525;'>Highlighted Text</em>" + ": " + "<br/>" + "<span class='highlighted-text'>" + nameObj.highlighted_text + "</span>" + "<br/>" + "<em style='color: #252525;''>Comment</em>" + ": " + "<br/>" + "<span class='comment-text'>" + nameObj.comment + "</span>" +
+      '</li>'
+    );
   }
 
 }(window, jQuery));
