@@ -1,12 +1,11 @@
 (function(global, $) {
 
   var container = $("script#annotate").attr("container");
-  console.log(container);
-  //  AnnotationTool(container tag)
+
+  //  Additional styles for "on" and "off" annotations.
   $("<style type='text/css'> .on-annotation{ color:#26A69A; } .off-annotation{ color:#FFFFFF;}</style>").appendTo("head");
 
-  //  Create the annotation bar... Might reserve this for comments.
-
+  //  Create the annotation bar with icons...
   var annotationBar = document.createElement("div");
 
   annotationBar.className = "annotation"
@@ -35,12 +34,6 @@
   $("<i></i>").addClass('mdi-action-view-headline off-annotation').css('display', 'block').appendTo('.annotation');
   $("<i></i>").addClass('mdi-content-archive off-annotation').css({
     'display': 'block'
-      // 'position': 'absolute',
-      // 'margin-left': 'auto',
-      // 'margin-right': 'auto',
-      // 'left': '0',
-      // 'right': '0',
-      // 'bottom': '0'
   }).appendTo('.annotation');
 
   var rootRef = new Firebase($("script#annotate").attr("firebase"));
@@ -188,57 +181,7 @@
   }
 
   $(container).on('mouseup', function() {
-
-    $('.comment-area textarea').off("keyup");
-
-    var selectedObj = highlightText('#FEC324');
-    parentCSSRefPath = selectedObj.parentCSSPath;
-    currentRef = insertComment(selectedObj);
-
-    iconOn($('.mdi-editor-insert-comment'));
-
-    if ($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%") {
-      $(".comment-area").css("display", "block").animate({
-        "right": "0%"
-      }, "fast");
-    }
-
-    iconOn($('.mdi-action-view-headline'));
-    iconOff($('.mdi-content-archive'));
-
-    printAllFlag = false;
-
-    if ($('.comment-list').css('right') === "-15%" || $('.comment-list').css('right') === "0%") {
-      $(".comment-list").css("display", "block").animate({
-        "right": "0%"
-      }, "fast");
-    }
-
-    console.log("Before empty");
-    //  Let's empty this collection and fill it with comments within this section.
-    $('.comment-list .collection').empty();
-    console.log("After empty");
-    for (var property in internalCommentsDict) {
-      var nameObj = internalCommentsDict[property];
-      if (nameObj.parentPath == selectedObj.parentCSSPath) {
-        $('.comment-list .collection').append(
-          '<a href="#!" class="collection-item" style="line-height:0.5rem;" id="' + property + '">' +
-          "<strong>" + nameObj.twitterName + "</strong>" + ": " + "<br/>" + "<em style='color: #252525;'>Highlighted Text</em>" + ": " + "<br/>" + "<span class='highlighted-text'>" + nameObj.highlighted_text + "</span>" + "<br/>" + "<em style='color: #252525;''>Comment</em>" + ": " + "<br/>" + "<span class='comment-text'>" + nameObj.comment + "</span>" +
-          '</li>'
-        );
-      }
-    }
-    console.log("After loop");
-
-    // console.log( rootRef.child(currentRef.name()));
-    $('.comment-area textarea').focus();
-    $('.comment-area textarea').keyup(function() {
-      currentRef.update({
-        comment: $('.comment-area textarea').val()
-      }, onComplete);
-      //  Need to reflect this change in real-time
-    });
-
+    mouseupAction('#FEC324');
   });
 
   var onComplete = function(error) {
@@ -269,14 +212,8 @@
   }
 
   $(container).on('mousedown', function() {
-
     unhighlightText();
   });
-
-  $('.selected-text').on('click', function() {
-    console.log($(this));
-  });
-
 
   function hoverActions() {
     var listOfElements = ".off-annotation, .mdi-action-account-box";
@@ -529,7 +466,7 @@
     $(container).off('mousedown');
 
     $(container).on('mouseup', function() {
-      mouseupAction(selector, cssStyle, cssColor);
+      mouseupAction(cssColor, cssStyle);
     });
 
     $(container).on('mousedown', function() {
@@ -543,7 +480,7 @@
     });
   }
 
-  function mouseupAction(selector, cssStyle, cssColor) {
+  function mouseupAction(cssColor, cssStyle) {
     $('.comment-area textarea').off("keyup");
 
     var selectedObj = highlightText(cssColor, cssStyle);
