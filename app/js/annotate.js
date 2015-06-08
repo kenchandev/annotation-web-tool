@@ -1,5 +1,3 @@
-var test;
-
 (function(global, $) {
 
   var container = $("script#annotate").attr("container");
@@ -432,12 +430,8 @@ var test;
   }
 
   function iconOff(selector1, selector2, selector3, selector4) {
-    console.log('Inside iconOff!');
-    console.log(selector1.attr('class'));
 
     var selector = (typeof(selector1) !== 'undefined' && typeof(selector2) !== 'undefined' && typeof(selector3) !== 'undefined' && typeof(selector4) !== 'undefined') ? selector1.add(selector2).add(selector3).add(selector4) : selector1;
-    test = selector;
-    console.log(test);
 
     selector.off("mouseout");
     selector.on("mouseout", function() {
@@ -478,28 +472,24 @@ var test;
 
     //  Underline On
     if (selector.is(underline)) {
-      console.log('inside underline');
       iconOff(highlight, italic, bold, strike);
       cssStyle = "underline";
       cssColor = "#FFFFFF";
     }
     //  Italicize On
     if (selector.is(italic)) {
-      console.log("inside italic");
       iconOff(highlight, underline, bold, strike);
       cssStyle = "italic";
       cssColor = "#FFFFFF";
     }
     //  Bold On
     if (selector.is(bold)) {
-      console.log('inside bold');
       iconOff(highlight, italic, underline, strike);
       cssStyle = "bold";
       cssColor = "#FFFFFF";
     }
     //  Strike-Through On
     if (selector.is(strike)) {
-      console.log('inside strike');
       iconOff(highlight, italic, bold, underline);
       cssStyle = "cross";
       cssColor = "#FFFFFF";
