@@ -4,8 +4,8 @@
   //  Grab the parameters!
   var container = $("script#annotate").attr("container");
   var elements = $("script#annotate").attr("elements");
-  //  Additional styles for "on" and "off" annotations.
-  $("<style type='text/css'> .on-annotation{ color:#26A69A; } .off-annotation{ color:#FFFFFF;}</style>").appendTo("head");
+  //  Additional styles for "on" and "off" annotations and speech bubbles for listing comments.
+  $("<style type='text/css'> .on-annotation{ color:#26A69A; } .off-annotation{ color:#FFFFFF;} .bubble{ position: relative; width: 250px; height: 350px; padding: 0px; background: #26A69A; -webkit-border-radius: 10px; -moz-border-radius: 10px; border-radius: 10px; } .bubble:after { content: ''; position: absolute; border-style: solid; border-width: 0px 20px 15px; border-color: #26A69A transparent; display: block; width: 0; z-index: 1; top: -14px; left: 105px; } </style>").appendTo("head");
 
   //  Create the annotation bar with icons...
   var annotationBar = document.createElement("div");
@@ -49,6 +49,7 @@
   var parentCSSRefPath = null;
   var printAllFlag = true;
 
+  var commentsExistDict = {};
   var internalCommentsDict = {};
 
   // var last10Comments = commentsRef.limit(10);
@@ -97,9 +98,28 @@
   document.body.appendChild(commentList);
 
   $("<ul></ul>").addClass('collection').css('border', 'none').appendTo('.comment-list');
+  var bubbleContainer = $("<div></div>").addClass('bubble-items').appendTo(container);
 
   //  Append comment icons to the end of each paragraph/header tag
-  $("<i></i>").addClass("mdi-notification-sms-failed").appendTo(elements);
+  var iconsDivs = $("<i></i>").addClass("mdi-notification-sms-failed").css({'cursor': 'pointer', 'font-size': '15px'}).appendTo(elements);
+  //  Need this to color for exstence of comments in a section...
+  $('.mdi-notification-sms-failed').each(function(i) {
+    commentsExistDict[getFullCSSPath($(this)[0].parentNode)] = $(this);
+    $('<div></div>').addClass('bubble').css('display', 'none').appendTo(bubbleContainer);
+  });
+
+  //  Set the action listener for the button
+  $('.mdi-notification-sms-failed').on("click", function() {
+    var index = $(".mdi-notification-sms-failed").index(this);
+    var position = $(this).position();
+    var width = $(this).width(); //  Take into account additional padding/margins
+    console.log(index);
+    $('.bubble-items .bubble:nth-of-type(' + (index + 1) + ')').css({
+      position: "absolute",
+      top: (position.top + 30) + "px",
+      left: (position.left - Math.floor(250 / 2) + 7) + "px"  //  Half of the width of the comment box...
+    }).toggle();
+  });
 
   /******
 
@@ -128,12 +148,7 @@
   function highlightText(hexColor, fontStyle) {
     //  Clear the old comment
     $('.materialize-textarea').val("");
-    console.log(window.getSelection());
     var selection = window.getSelection().getRangeAt(0);
-    console.log(typeof(selection));
-
-
-
 
     var selectedText = selection.extractContents();
     var spanStyles = {
@@ -172,11 +187,6 @@
     span.appendChild(selectedText);
     selection.insertNode(span);
 
-    console.log("Offset Values");
-    console.log(document.querySelector(getFullCSSPath(span.parentNode)).selectionStart);
-    console.log(document.querySelector(getFullCSSPath(span.parentNode)).selectionEnd);
-    console.log("Good??");
-
     return {
       spanStyles: spanStyles,
       selectionObject: selection,
@@ -191,7 +201,6 @@
   }
 
   $(container).on('mouseup', function() {
-    console.log(this.selectionStart);
     mouseupAction(1, '#FEC324');
   });
 
@@ -205,8 +214,6 @@
 
   function insertComment(selectedObj) {
     if (selectedObj.text) {
-      console.log(selectedObj.spanElement);
-      console.log(selectedObj.selectionObject);
       //  Returns a reference to the object inserted thus far.
       return commentsRef.push({
         spanStyles: selectedObj.spanStyles,
@@ -275,6 +282,11 @@
         "<strong>" + item.twitterName + "</strong>" + ": " + "<br/>" + "<em style='color: #252525;'>Highlighted Text</em>" + ": " + "<br/>" + "<span class='highlighted-text'>" + item.highlighted_text + "</span>" + "<br/>" + "<em style='color: #252525;''>Comment</em>" + ": " + "<br/>" + "<span class='comment-text'>" + item.comment + "</span>" +
         '</li>'
       );
+    if (item.parentPath in commentsExistDict)
+      $('.mdi-notification-sms-failed').filter(function(i) {
+        console.log("Yay!");
+        return $(this).is(commentsExistDict[item.parentPath]);
+      }).css('color', '#26A69A');
   });
 
   commentsRef.on('child_changed', function(snapshot) {
@@ -517,7 +529,6 @@
     });
   }
 
-
   // Subselection of comments
   $(".mdi-action-view-headline").one("click", handler_subcomment_one);
 
@@ -530,7 +541,6 @@
 
   function handler_subcomment_two() {
     ($('.mdi-action-view-headline').hasClass('on-annotation')) ? iconOff($('.mdi-action-view-headline')): iconOn($('.mdi-action-view-headline'));
-
 
     $('.mdi-action-view-headline').one("click", handler_subcomment_one);
   }
