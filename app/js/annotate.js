@@ -1,3 +1,5 @@
+var test;
+
 (function(global, $) {
 
   var container = $("script#annotate").attr("container");
@@ -136,25 +138,31 @@
     $('.materialize-textarea').val("");
 
     var selection = window.getSelection().getRangeAt(0);
-    console.log(selection);
+    console.log(typeof(selection));
     var selectedText = selection.extractContents();
+    var spanStyles = {
+      backgroundColor: hexColor,
+      fontWeight: 'normal',
+      fontStyle: 'normal',
+      textDecoration: 'none'
+    };
     var span = document.createElement('span');
     span.style.backgroundColor = hexColor;
     span.className = 'selected-text';
 
-    if (fontStyle !== undefined) {
+    if (typeof(fontStyle) !== 'undefined') {
       switch (fontStyle) {
         case 'bold':
-          span.style.fontWeight = 'bold';
+          span.style.fontWeight = spanStyles.fontWeight = 'bold';
           break;
         case 'italic':
-          span.style.fontStyle = 'italic';
+          span.style.fontStyle = spanStyles.fontStyle = 'italic';
           break;
         case 'underline':
-          span.style.textDecoration = 'underline';
+          span.style.textDecoration = spanStyles.textDecoration = 'underline';
           break;
         case 'cross':
-          span.style.textDecoration = 'line-through';
+          span.style.textDecoration = spanStyles.textDecoration = 'line-through';
           break;
         default:
           break;
@@ -169,6 +177,8 @@
     selection.insertNode(span);
 
     return {
+      spanStyles: spanStyles,
+      selectionObject: selection,
       text: span.innerText,
       parentCSSPath: getFullCSSPath(span.parentNode),
       currentCSSPath: getFullCSSPath(span)
@@ -206,8 +216,10 @@
       }, "fast");
     }
 
+    console.log("Before empty");
     //  Let's empty this collection and fill it with comments within this section.
     $('.comment-list .collection').empty();
+    console.log("After empty");
     for (var property in internalCommentsDict) {
       var nameObj = internalCommentsDict[property];
       if (nameObj.parentPath == selectedObj.parentCSSPath) {
@@ -218,6 +230,7 @@
         );
       }
     }
+    console.log("After loop");
 
     // console.log( rootRef.child(currentRef.name()));
     $('.comment-area textarea').focus();
@@ -239,10 +252,13 @@
   };
 
   function insertComment(selectedObj) {
-
     if (selectedObj.text) {
+      console.log(selectedObj.spanElement);
+      console.log(selectedObj.selectionObject);
       //  Returns a reference to the object inserted thus far.
       return commentsRef.push({
+        spanStyles: selectedObj.spanStyles,
+        selectionObject: selectedObj.selectionObject,
         twitterUserID: twitterUserID,
         twitterName: twitterName,
         twitterHandle: twitterHandle,
@@ -347,24 +363,6 @@
     });
   });
 
-
-  function iconOn(selector) {
-    selector.off("mouseout");
-    // selector.css("color", "#26A69A");
-    selector.addClass('on-annotation').removeClass('off-annotation');
-    selector.css('color', '#26A69A');
-  }
-
-  function iconOff(selector) {
-    selector.off("mouseout");
-    selector.on("mouseout", function() {
-      $(this).css("color", "white");
-    });
-    // selector.css("color", "white");
-    selector.addClass('off-annotation').removeClass('on-annotation');
-    selector.css('color', '#FFFFFF');
-  }
-
   //  For adding comments...
 
   $(".mdi-editor-insert-comment").one("click", handler_comment_one);
@@ -426,569 +424,179 @@
   }
 
 
-  /******/
-  //  For bolding text...
-  /******/
+  function iconOn(selector) {
+    selector.off("mouseout");
+    // selector.css("color", "#26A69A");
+    selector.addClass('on-annotation').removeClass('off-annotation');
+    selector.css('color', '#26A69A');
+  }
 
-  $(".mdi-editor-format-bold").one("click", handler_bold_one);
+  function iconOff(selector1, selector2, selector3, selector4) {
+    console.log('Inside iconOff!');
+    console.log(selector1.attr('class'));
 
-  function handler_bold_one() {
-    //  Must turn off italicizing, underlining and crossing.
-    iconOff($('.mdi-editor-mode-edit'));
-    iconOff($('.mdi-editor-format-italic'));
-    iconOff($('.mdi-editor-format-color-text'));
-    iconOff($('.mdi-editor-format-clear'));
+    var selector = (typeof(selector1) !== 'undefined' && typeof(selector2) !== 'undefined' && typeof(selector3) !== 'undefined' && typeof(selector4) !== 'undefined') ? selector1.add(selector2).add(selector3).add(selector4) : selector1;
+    test = selector;
+    console.log(test);
 
-    iconOn($(this));
+    selector.off("mouseout");
+    selector.on("mouseout", function() {
+      $(this).css("color", "white");
+    });
+    // selector.css("color", "white");
+    selector.removeClass('on-annotation').addClass('off-annotation');
+    selector.css('color', '#FFFFFF');
+  }
 
+  /***
+
+    Actions for bolding, striking, italicizing, underlining
+
+  **/
+
+  var underline = $(".mdi-editor-format-color-text");
+  var italic = $(".mdi-editor-format-italic");
+  var bold = $(".mdi-editor-format-bold");
+  var strike = $(".mdi-editor-format-clear");
+  var highlight = $('.mdi-editor-mode-edit');
+
+  underline.one("click", function() {
+    handler_one($(this));
+  });
+  strike.one("click", function() {
+    handler_one($(this));
+  });
+  italic.one("click", function() {
+    handler_one($(this));
+  });
+  bold.one("click", function() {
+    handler_one($(this));
+  });
+
+  function handler_one(selector) {
+    var cssStyle, cssColor = "#FEC324"; //  Default color if none of the above are selected...
+
+    //  Underline On
+    if (selector.is(underline)) {
+      console.log('inside underline');
+      iconOff(highlight, italic, bold, strike);
+      cssStyle = "underline";
+      cssColor = "#FFFFFF";
+    }
+    //  Italicize On
+    if (selector.is(italic)) {
+      console.log("inside italic");
+      iconOff(highlight, underline, bold, strike);
+      cssStyle = "italic";
+      cssColor = "#FFFFFF";
+    }
+    //  Bold On
+    if (selector.is(bold)) {
+      console.log('inside bold');
+      iconOff(highlight, italic, underline, strike);
+      cssStyle = "bold";
+      cssColor = "#FFFFFF";
+    }
+    //  Strike-Through On
+    if (selector.is(strike)) {
+      console.log('inside strike');
+      iconOff(highlight, italic, bold, underline);
+      cssStyle = "cross";
+      cssColor = "#FFFFFF";
+    }
+
+    iconOn(selector);
+
+    setNewActions(selector, cssStyle, cssColor, "handler_two");
+  }
+
+  //  Handler 2 deals with turning off the current annotation style and defaulting back to the highlighting feature.
+  function handler_two(selector) {
+    var cssStyle, cssColor = "#FEC324"; //  Default color if none of the above are selected...
+
+    //  Underline On
+    if (selector.is(underline)) iconOff(underline);
+    //  Italicize On
+    if (selector.is(italic)) iconOff(italic);
+    //  Bold On
+    if (selector.is(bold)) iconOff(bold);
+    //  Strike-Through On
+    if (selector.is(strike)) iconOff(strike);
+
+    iconOn(highlight);
+
+    setNewActions(selector, cssStyle, cssColor, "handler_one");
+  }
+
+  function setNewActions(selector, cssStyle, cssColor, handler) {
     //  Resetting actions is extremely important since old actions will carry on if they are not turned off.
     hoverActions();
     $(container).off('mouseup');
     $(container).off('mousedown');
 
     $(container).on('mouseup', function() {
-      $('.comment-area textarea').off("keyup");
-
-      var selectedObj = highlightText('#FFFFFF', 'bold');
-      currentRef = insertComment(selectedObj);
-
-      iconOn($('.mdi-editor-insert-comment'));
-
-
-      if ($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%") {
-        $(".comment-area").css("display", "block").animate({
-          "right": "0%"
-        }, "fast");
-      }
-
-      iconOn($('.mdi-action-view-headline'));
-      iconOff($('.mdi-content-archive'));
-
-      printAllFlag = false;
-
-      if ($('.comment-list').css('right') === "-15%" || $('.comment-list').css('right') === "0%") {
-        $(".comment-list").css("display", "block").animate({
-          "right": "0%"
-        }, "fast");
-      }
-
-      //  Let's empty this collection and fill it with comments within this section.
-      $('.comment-list .collection').empty();
-      for (var property in internalCommentsDict) {
-        var nameObj = internalCommentsDict[property];
-        if (nameObj.parentPath == selectedObj.parentCSSPath) {
-          $('.comment-list .collection').append(
-            '<a href="#!" class="collection-item" style="line-height:0.5rem;" id="' + property + '">' +
-            "<strong>" + nameObj.twitterName + "</strong>" + ": " + "<br/>" + "<em style='color: #252525;'>Highlighted Text</em>" + ": " + "<br/>" + "<span class='highlighted-text'>" + nameObj.highlighted_text + "</span>" + "<br/>" + "<em style='color: #252525;''>Comment</em>" + ": " + "<br/>" + "<span class='comment-text'>" + nameObj.comment + "</span>" +
-            '</li>'
-          );
-        }
-      }
-
-      $('.comment-area textarea').focus();
-      $('.comment-area textarea').keyup(function() {
-        currentRef.update({
-          comment: $('.comment-area textarea').val()
-        });
-        //  Need to reflect this change in real-time
-      });
-    });
-
-    $(container).on('mousedown', function() {
-      unhighlightText();
-      //  Time to set focus to the comment box...
-    });
-
-
-
-    $(this).one("click", handler_bold_two);
-  }
-
-  function handler_bold_two() {
-    iconOff($('.mdi-editor-format-bold'));
-    iconOn($('.mdi-editor-mode-edit'));
-    //  Resetting actions is extremely important since old actions will carry on if they are not turned off.
-    hoverActions();
-    $(container).off('mouseup');
-    $(container).off('mousedown');
-
-    $(container).on('mouseup', function() {
-      $('.comment-area textarea').off("keyup");
-
-      var selectedObj = highlightText('#FEC324');
-      currentRef = insertComment(selectedObj);
-
-      iconOn($('.mdi-editor-insert-comment'));
-
-      if ($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%") {
-        $(".comment-area").css("display", "block").animate({
-          "right": "0%"
-        }, "fast");
-      }
-
-      iconOn($('.mdi-action-view-headline'));
-      iconOff($('.mdi-content-archive'));
-
-      printAllFlag = false;
-
-      if ($('.comment-list').css('right') === "-15%" || $('.comment-list').css('right') === "0%") {
-        $(".comment-list").css("display", "block").animate({
-          "right": "0%"
-        }, "fast");
-      }
-
-      //  Let's empty this collection and fill it with comments within this section.
-      $('.comment-list .collection').empty();
-      for (var property in internalCommentsDict) {
-        var nameObj = internalCommentsDict[property];
-        if (nameObj.parentPath == selectedObj.parentCSSPath) {
-          $('.comment-list .collection').append(
-            '<a href="#!" class="collection-item" style="line-height:0.5rem;" id="' + property + '">' +
-            "<strong>" + nameObj.twitterName + "</strong>" + ": " + "<br/>" + "<em style='color: #252525;'>Highlighted Text</em>" + ": " + "<br/>" + "<span class='highlighted-text'>" + nameObj.highlighted_text + "</span>" + "<br/>" + "<em style='color: #252525;''>Comment</em>" + ": " + "<br/>" + "<span class='comment-text'>" + nameObj.comment + "</span>" +
-            '</li>'
-          );
-        }
-      }
-
-      $('.comment-area textarea').focus();
-      $('.comment-area textarea').keyup(function() {
-        currentRef.update({
-          comment: $('.comment-area textarea').val()
-        });
-        //  Need to reflect this change in real-time
-      });
-    });
-
-    $(container).on('mousedown', function() {
-
-      unhighlightText();
-    });
-
-
-
-    $('.mdi-editor-format-bold').one("click", handler_bold_one);
-  }
-
-  /******/
-  //  For underlining text...
-  /******/
-
-  $(".mdi-editor-format-color-text").one("click", handler_underline_one);
-
-  function handler_underline_one() {
-    //  Must turn off italicizing, bolding and crossing.
-    iconOff($('.mdi-editor-mode-edit'));
-    iconOff($('.mdi-editor-format-italic'));
-    iconOff($('.mdi-editor-format-bold'));
-    iconOff($('.mdi-editor-format-clear'));
-
-    iconOn($(this));
-
-    //  Resetting actions is extremely important since old actions will carry on if they are not turned off.
-    hoverActions();
-    $(container).off('mouseup');
-    $(container).off('mousedown');
-
-    $(container).on('mouseup', function() {
-      $('.comment-area textarea').off("keyup");
-
-      var selectedObj = highlightText('#FFFFFF', 'underline');
-      currentRef = insertComment(selectedObj);
-
-      iconOn($('.mdi-editor-insert-comment'));
-
-      if ($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%") {
-        $(".comment-area").css("display", "block").animate({
-          "right": "0%"
-        }, "fast");
-      }
-
-
-      iconOn($('.mdi-action-view-headline'));
-      iconOff($('.mdi-content-archive'));
-
-      printAllFlag = false;
-
-      if ($('.comment-list').css('right') === "-15%" || $('.comment-list').css('right') === "0%") {
-        $(".comment-list").css("display", "block").animate({
-          "right": "0%"
-        }, "fast");
-      }
-
-      //  Let's empty this collection and fill it with comments within this section.
-      $('.comment-list .collection').empty();
-      for (var property in internalCommentsDict) {
-        var nameObj = internalCommentsDict[property];
-        if (nameObj.parentPath == selectedObj.parentCSSPath) {
-          $('.comment-list .collection').append(
-            '<a href="#!" class="collection-item" style="line-height:0.5rem;" id="' + property + '">' +
-            "<strong>" + nameObj.twitterName + "</strong>" + ": " + "<br/>" + "<em style='color: #252525;'>Highlighted Text</em>" + ": " + "<br/>" + "<span class='highlighted-text'>" + nameObj.highlighted_text + "</span>" + "<br/>" + "<em style='color: #252525;''>Comment</em>" + ": " + "<br/>" + "<span class='comment-text'>" + nameObj.comment + "</span>" +
-            '</li>'
-          );
-        }
-      }
-
-      $('.comment-area textarea').focus();
-      $('.comment-area textarea').keyup(function() {
-        currentRef.update({
-          comment: $('.comment-area textarea').val()
-        });
-        //  Need to reflect this change in real-time
-      });
-    });
-
-
-    $(container).on('mousedown', function() {
-      unhighlightText();
-    });
-
-
-
-    $(this).one("click", handler_underline_two);
-  }
-
-  function handler_underline_two() {
-    iconOff($('.mdi-editor-format-color-text'));
-    iconOn($('.mdi-editor-mode-edit'));
-    //  Resetting actions is extremely important since old actions will carry on if they are not turned off.
-    hoverActions();
-    $(container).off('mouseup');
-    $(container).off('mousedown');
-
-    $(container).on('mouseup', function() {
-      $('.comment-area textarea').off("keyup");
-
-      var selectedObj = highlightText('#FEC324');
-      currentRef = insertComment(selectedObj);
-
-      iconOn($('.mdi-editor-insert-comment'));
-
-      if ($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%") {
-        $(".comment-area").css("display", "block").animate({
-          "right": "0%"
-        }, "fast");
-      }
-
-
-      iconOn($('.mdi-action-view-headline'));
-      iconOff($('.mdi-content-archive'));
-
-      printAllFlag = false;
-
-      if ($('.comment-list').css('right') === "-15%" || $('.comment-list').css('right') === "0%") {
-        $(".comment-list").css("display", "block").animate({
-          "right": "0%"
-        }, "fast");
-      }
-
-      //  Let's empty this collection and fill it with comments within this section.
-      $('.comment-list .collection').empty();
-      for (var property in internalCommentsDict) {
-        var nameObj = internalCommentsDict[property];
-        if (nameObj.parentPath == selectedObj.parentCSSPath) {
-          $('.comment-list .collection').append(
-            '<a href="#!" class="collection-item" style="line-height:0.5rem;" id="' + property + '">' +
-            "<strong>" + nameObj.twitterName + "</strong>" + ": " + "<br/>" + "<em style='color: #252525;'>Highlighted Text</em>" + ": " + "<br/>" + "<span class='highlighted-text'>" + nameObj.highlighted_text + "</span>" + "<br/>" + "<em style='color: #252525;''>Comment</em>" + ": " + "<br/>" + "<span class='comment-text'>" + nameObj.comment + "</span>" +
-            '</li>'
-          );
-        }
-      }
-
-      $('.comment-area textarea').focus();
-      $('.comment-area textarea').keyup(function() {
-        currentRef.update({
-          comment: $('.comment-area textarea').val()
-        });
-        //  Need to reflect this change in real-time
-      });
+      mouseupAction(selector, cssStyle, cssColor);
     });
 
     $(container).on('mousedown', function() {
       unhighlightText();
     });
 
-
-
-    $('.mdi-editor-format-color-text').one("click", handler_underline_one);
+    (handler === "handler_one") ? selector.one("click", function() {
+      handler_one($(this));
+    }): selector.one("click", function() {
+      handler_two($(this));
+    });
   }
 
-  /******/
-  //  For italicizing text...
-  /******/
+  function mouseupAction(selector, cssStyle, cssColor) {
+    $('.comment-area textarea').off("keyup");
 
-  $(".mdi-editor-format-italic").one("click", handler_italicize_one);
+    var selectedObj = highlightText(cssColor, cssStyle);
+    parentCSSRefPath = selectedObj.parentCSSPath;
+    currentRef = insertComment(selectedObj);
 
-  function handler_italicize_one() {
-    //  Must turn off underlining, bolding and crossing.
-    iconOff($('.mdi-editor-mode-edit'));
-    iconOff($('.mdi-editor-format-bold'));
-    iconOff($('.mdi-editor-format-color-text'));
-    iconOff($('.mdi-editor-format-clear'));
+    iconOn($('.mdi-editor-insert-comment'));
 
-    iconOn($(this));
+    if ($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%") {
+      $(".comment-area").css("display", "block").animate({
+        "right": "0%"
+      }, "fast");
+    }
 
-    //  Resetting actions is extremely important since old actions will carry on if they are not turned off.
-    hoverActions();
-    $(container).off('mouseup');
-    $(container).off('mousedown');
+    iconOn($('.mdi-action-view-headline'));
+    iconOff($('.mdi-content-archive'));
 
-    $(container).on('mouseup', function() {
-      $('.comment-area textarea').off("keyup");
+    printAllFlag = false;
 
-      var selectedObj = highlightText('#FFFFFF', 'italic');
-      currentRef = insertComment(selectedObj);
+    if ($('.comment-list').css('right') === "-15%" || $('.comment-list').css('right') === "0%") {
+      $(".comment-list").css("display", "block").animate({
+        "right": "0%"
+      }, "fast");
+    }
 
-      iconOn($('.mdi-editor-insert-comment'));
-
-      if ($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%") {
-        $(".comment-area").css("display", "block").animate({
-          "right": "0%"
-        }, "fast");
+    //  Let's empty this collection and fill it with comments within this section.
+    $('.comment-list .collection').empty();
+    for (var property in internalCommentsDict) {
+      var nameObj = internalCommentsDict[property];
+      if (nameObj.parentPath == selectedObj.parentCSSPath) {
+        $('.comment-list .collection').append(
+          '<a href="#!" class="collection-item" style="line-height:0.5rem;" id="' + property + '">' +
+          "<strong>" + nameObj.twitterName + "</strong>" + ": " + "<br/>" + "<em style='color: #252525;'>Highlighted Text</em>" + ": " + "<br/>" + "<span class='highlighted-text'>" + nameObj.highlighted_text + "</span>" + "<br/>" + "<em style='color: #252525;''>Comment</em>" + ": " + "<br/>" + "<span class='comment-text'>" + nameObj.comment + "</span>" +
+          '</li>'
+        );
       }
+    }
 
-      iconOn($('.mdi-action-view-headline'));
-      iconOff($('.mdi-content-archive'));
-
-      printAllFlag = false;
-
-      if ($('.comment-list').css('right') === "-15%" || $('.comment-list').css('right') === "0%") {
-        $(".comment-list").css("display", "block").animate({
-          "right": "0%"
-        }, "fast");
-      }
-
-      //  Let's empty this collection and fill it with comments within this section.
-      $('.comment-list .collection').empty();
-      for (var property in internalCommentsDict) {
-        var nameObj = internalCommentsDict[property];
-        if (nameObj.parentPath == selectedObj.parentCSSPath) {
-          $('.comment-list .collection').append(
-            '<a href="#!" class="collection-item" style="line-height:0.5rem;" id="' + property + '">' +
-            "<strong>" + nameObj.twitterName + "</strong>" + ": " + "<br/>" + "<em style='color: #252525;'>Highlighted Text</em>" + ": " + "<br/>" + "<span class='highlighted-text'>" + nameObj.highlighted_text + "</span>" + "<br/>" + "<em style='color: #252525;''>Comment</em>" + ": " + "<br/>" + "<span class='comment-text'>" + nameObj.comment + "</span>" +
-            '</li>'
-          );
-        }
-      }
-
-      $('.comment-area textarea').focus();
-      $('.comment-area textarea').keyup(function() {
-        currentRef.update({
-          comment: $('.comment-area textarea').val()
-        });
-        //  Need to reflect this change in real-time
-      });
+    $('.comment-area textarea').focus();
+    $('.comment-area textarea').keyup(function() {
+      currentRef.update({
+        comment: $('.comment-area textarea').val()
+      }, onComplete);
+      //  Need to reflect this change in real-time
     });
-
-    $(container).on('mousedown', function() {
-      unhighlightText();
-    });
-
-
-
-    $(this).one("click", handler_italicize_two);
   }
 
-  function handler_italicize_two() {
-    iconOff($('.mdi-editor-format-italic'));
-    iconOn($('.mdi-editor-mode-edit'));
-    //  Resetting actions is extremely important since old actions will carry on if they are not turned off.
-    hoverActions();
-    $(container).off('mouseup');
-    $(container).off('mousedown');
-
-    $(container).on('mouseup', function() {
-      $('.comment-area textarea').off("keyup");
-
-      var selectedObj = highlightText('#FEC324');
-      currentRef = insertComment(selectedObj);
-
-      iconOn($('.mdi-editor-insert-comment'));
-
-      if ($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%") {
-        $(".comment-area").css("display", "block").animate({
-          "right": "0%"
-        }, "fast");
-      }
-
-
-      iconOn($('.mdi-action-view-headline'));
-      iconOff($('.mdi-content-archive'));
-
-      printAllFlag = false;
-
-      if ($('.comment-list').css('right') === "-15%" || $('.comment-list').css('right') === "0%") {
-        $(".comment-list").css("display", "block").animate({
-          "right": "0%"
-        }, "fast");
-      }
-
-      //  Let's empty this collection and fill it with comments within this section.
-      $('.comment-list .collection').empty();
-      for (var property in internalCommentsDict) {
-        var nameObj = internalCommentsDict[property];
-        if (nameObj.parentPath == selectedObj.parentCSSPath) {
-          $('.comment-list .collection').append(
-            '<a href="#!" class="collection-item" style="line-height:0.5rem;" id="' + property + '">' +
-            "<strong>" + nameObj.twitterName + "</strong>" + ": " + "<br/>" + "<em style='color: #252525;'>Highlighted Text</em>" + ": " + "<br/>" + "<span class='highlighted-text'>" + nameObj.highlighted_text + "</span>" + "<br/>" + "<em style='color: #252525;''>Comment</em>" + ": " + "<br/>" + "<span class='comment-text'>" + nameObj.comment + "</span>" +
-            '</li>'
-          );
-        }
-      }
-
-      $('.comment-area textarea').focus();
-      $('.comment-area textarea').keyup(function() {
-        currentRef.update({
-          comment: $('.comment-area textarea').val()
-        });
-        //  Need to reflect this change in real-time
-      });
-    });
-
-    $(container).on('mousedown', function() {
-
-      unhighlightText();
-    });
-
-    $('.mdi-editor-format-italic').one("click", handler_italicize_one);
-  }
-
-  /******/
-  //  For crossing text...
-  /******/
-
-  $(".mdi-editor-format-clear").one("click", handler_crossing_one);
-
-  function handler_crossing_one() {
-    //  Must turn off italicizing, bolding and crossing.
-    iconOff($('.mdi-editor-mode-edit'));
-    iconOff($('.mdi-editor-format-bold'));
-    iconOff($('.mdi-editor-format-italic'));
-    iconOff($('.mdi-editor-format-color-text'));
-
-    iconOn($(this));
-
-    //  Resetting actions is extremely important since old actions will carry on if they are not turned off.
-    hoverActions();
-    $(container).off('mouseup');
-    $(container).off('mousedown');
-
-    $(container).on('mouseup', function() {
-      $('.comment-area textarea').off("keyup");
-
-      var selectedObj = highlightText('#FFFFFF', 'cross');
-      currentRef = insertComment(selectedObj);
-
-      iconOn($('.mdi-editor-insert-comment'));
-
-      if ($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%") {
-        $(".comment-area").css("display", "block").animate({
-          "right": "0%"
-        }, "fast");
-      }
-
-
-      iconOn($('.mdi-action-view-headline'));
-      iconOff($('.mdi-content-archive'));
-
-      printAllFlag = false;
-
-      if ($('.comment-list').css('right') === "-15%" || $('.comment-list').css('right') === "0%") {
-        $(".comment-list").css("display", "block").animate({
-          "right": "0%"
-        }, "fast");
-      }
-
-      //  Let's empty this collection and fill it with comments within this section.
-      $('.comment-list .collection').empty();
-      for (var property in internalCommentsDict) {
-        var nameObj = internalCommentsDict[property];
-        if (nameObj.parentPath == selectedObj.parentCSSPath) {
-          $('.comment-list .collection').append(
-            '<a href="#!" class="collection-item" style="line-height:0.5rem;" id="' + property + '">' +
-            "<strong>" + nameObj.twitterName + "</strong>" + ": " + "<br/>" + "<em style='color: #252525;'>Highlighted Text</em>" + ": " + "<br/>" + "<span class='highlighted-text'>" + nameObj.highlighted_text + "</span>" + "<br/>" + "<em style='color: #252525;''>Comment</em>" + ": " + "<br/>" + "<span class='comment-text'>" + nameObj.comment + "</span>" +
-            '</li>'
-          );
-        }
-      }
-
-      $('.comment-area textarea').focus();
-      $('.comment-area textarea').keyup(function() {
-        currentRef.update({
-          comment: $('.comment-area textarea').val()
-        });
-        //  Need to reflect this change in real-time
-      });
-    });
-
-    $(container).on('mousedown', function() {
-      unhighlightText();
-    });
-
-    $(this).one("click", handler_crossing_two);
-  }
-
-  function handler_crossing_two() {
-    iconOff($('.mdi-editor-format-clear'));
-    iconOn($('.mdi-editor-mode-edit'));
-    //  Resetting actions is extremely important since old actions will carry on if they are not turned off.
-    hoverActions();
-    $(container).off('mouseup');
-    $(container).off('mousedown');
-
-    $(container).on('mouseup', function() {
-      $('.comment-area textarea').off("keyup");
-
-      var selectedObj = highlightText('#FEC324');
-      currentRef = insertComment(selectedObj);
-
-      iconOn($('.mdi-editor-insert-comment'));
-
-      if ($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%") {
-        $(".comment-area").css("display", "block").animate({
-          "right": "0%"
-        }, "fast");
-      }
-
-
-      iconOn($('.mdi-action-view-headline'));
-      iconOff($('.mdi-content-archive'));
-
-      printAllFlag = false;
-
-      if ($('.comment-list').css('right') === "-15%" || $('.comment-list').css('right') === "0%") {
-        $(".comment-list").css("display", "block").animate({
-          "right": "0%"
-        }, "fast");
-      }
-
-      //  Let's empty this collection and fill it with comments within this section.
-      $('.comment-list .collection').empty();
-      for (var property in internalCommentsDict) {
-        var nameObj = internalCommentsDict[property];
-        if (nameObj.parentPath == selectedObj.parentCSSPath) {
-          $('.comment-list .collection').append(
-            '<a href="#!" class="collection-item" style="line-height:0.5rem;" id="' + property + '">' +
-            "<strong>" + nameObj.twitterName + "</strong>" + ": " + "<br/>" + "<em style='color: #252525;'>Highlighted Text</em>" + ": " + "<br/>" + "<span class='highlighted-text'>" + nameObj.highlighted_text + "</span>" + "<br/>" + "<em style='color: #252525;''>Comment</em>" + ": " + "<br/>" + "<span class='comment-text'>" + nameObj.comment + "</span>" +
-            '</li>'
-          );
-        }
-      }
-
-      $('.comment-area textarea').focus();
-      $('.comment-area textarea').keyup(function() {
-        currentRef.update({
-          comment: $('.comment-area textarea').val()
-        });
-        //  Need to reflect this change in real-time
-      });
-    });
-
-    $(container).on('mousedown', function() {
-      unhighlightText();
-    });
-
-    $('.mdi-editor-format-clear').one("click", handler_crossing_one);
-  }
 
   // Subselection of comments
   $(".mdi-action-view-headline").one("click", handler_subcomment_one);
@@ -1044,123 +652,4 @@
     $('.mdi-content-archive').one("click", handler_archive_one);
   }
 
-  // $(".mdi-editor-mode-edit").on("click", handler_highlight);
-
-  // function handler_highlight() {
-  //   if ($(".mdi-editor-mode-edit").hasClass('off-annotation')) {
-  //     console.log("Inside!!!!!!!!!!")
-  //     //  Must turn off italicizing, bolding and crossing.
-  //     iconOff($('.mdi-editor-format-bold'));
-  //     iconOff($('.mdi-editor-format-italic'));
-  //     iconOff($('.mdi-editor-format-color-text'));
-  //     iconOff($('.mdi-editor-format-clear'))
-
-  //     iconOn($(".mdi-editor-mode-edit"));
-
-  //     //  Resetting actions is extremely important since old actions will carry on if they are not turned off.
-  //     hoverActions();
-  //     $(container).off('mouseup');
-  //     $(container).off('mousedown');
-
-  //     $('.comment-area textarea').off("keyup");
-
-  //     var selectedObj = highlightText('#FEC324');
-  //     var currentRef = insertComment(selectedObj);
-
-  //     iconOn($('.mdi-editor-insert-comment'));
-
-  //     if ($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%") {
-  //       $(".comment-area").css("display", "block").animate({
-  //         "right": "0%"
-  //       }, "fast");
-  //     }
-
-  //     iconOn($('.mdi-action-view-headline'));
-  //     iconOff($('.mdi-content-archive'));
-
-  //     if ($('.comment-list').css('right') === "-15%" || $('.comment-list').css('right') === "0%") {
-  //       $(".comment-list").css("display", "block").animate({
-  //         "right": "0%"
-  //       }, "fast");
-  //     }
-
-  //     //  Let's empty this collection and fill it with comments within this section.
-  //     $('.comment-list .collection').empty();
-  //     for (var property in internalCommentsDict) {
-  //       var nameObj = internalCommentsDict[property];
-  //       if (nameObj.parentPath == selectedObj.parentCSSPath) {
-  //         $('.comment-list .collection').append(
-  //           '<a href="#!" class="collection-item" style="line-height:0.5rem;" id="' + property + '">' +
-  //           "<strong>" + nameObj.twitterName + "</strong>" + ": " + "<br/>" + "<em style='color: #252525;'>Highlighted Text</em>" + ": " + "<br/>" + "<span class='highlighted-text'>" + nameObj.highlighted_text + "</span>" + "<br/>" + "<em style='color: #252525;''>Comment</em>" + ": " + "<br/>" + "<span class='comment-text'>" + nameObj.comment + "</span>" +
-  //           '</li>'
-  //         );
-  //       }
-  //     }
-
-  //     // console.log( rootRef.child(currentRef.name()));
-  //     $('.comment-area textarea').focus();
-  //     $('.comment-area textarea').keyup(function() {
-  //       currentRef.update({
-  //         comment: $('.comment-area textarea').val()
-  //       });
-  //       //  Need to reflect this change in real-time
-  //     });
-  //   } else {
-  //     iconOff($(".mdi-editor-mode-edit"));
-
-  //     //  Resetting actions is extremely important since old actions will carry on if they are not turned off.
-  //   hoverActions();
-  //   $(container).off('mouseup');
-  //   $(container).off('mousedown');
-
-  //   $(container).on('mouseup', function() {
-  //     $('.comment-area textarea').off("keyup");
-
-  //     var selectedObj = highlightText('#FEC324');
-  //     var currentRef = insertComment(selectedObj);
-  //     if ($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%") {
-  //       $(".comment-area").css("display", "block").animate({
-  //         "right": "0%"
-  //       }, "fast");
-  //     }
-
-
-  //     iconOn($('.mdi-action-view-headline'));
-  //     iconOff($('.mdi-content-archive'));
-
-  //     if ($('.comment-list').css('right') === "-15%" || $('.comment-list').css('right') === "0%") {
-  //       $(".comment-list").css("display", "block").animate({
-  //         "right": "0%"
-  //       }, "fast");
-  //     }
-
-  //     //  Let's empty this collection and fill it with comments within this section.
-  //     $('.comment-list .collection').empty();
-  //     for (var property in internalCommentsDict) {
-  //       var nameObj = internalCommentsDict[property];
-  //       if (nameObj.parentPath == selectedObj.parentCSSPath) {
-  //         $('.comment-list .collection').append(
-  //           '<a href="#!" class="collection-item" style="line-height:0.5rem;" id="' + property + '">' +
-  //           "<strong>" + nameObj.twitterName + "</strong>" + ": " + "<br/>" + "<em style='color: #252525;'>Highlighted Text</em>" + ": " + "<br/>" + "<span class='highlighted-text'>" + nameObj.highlighted_text + "</span>" + "<br/>" + "<em style='color: #252525;''>Comment</em>" + ": " + "<br/>" + "<span class='comment-text'>" + nameObj.comment + "</span>" +
-  //           '</li>'
-  //         );
-  //       }
-  //     }
-
-  //     $('.comment-area textarea').focus();
-  //     $('.comment-area textarea').keyup(function() {
-  //       currentRef.update({
-  //         comment: $('.comment-area textarea').val()
-  //       });
-  //       //  Need to reflect this change in real-time
-  //     });
-  //   });
-
-  //   $(container).on('mousedown', function() {
-  //     unhighlightText();
-  //   });
-  //   }
-  // }
-
-  //  Let's render the last ten elements
 }(window, jQuery));
