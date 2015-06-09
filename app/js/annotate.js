@@ -187,11 +187,14 @@
   function highlightText(hexColor, fontStyle, selection) {
     console.log("Inside Highlight");
     //  Clear the old comment
+    var rangeSelection;
     $('.materialize-textarea').val("");
-    if(typeof(selection) == 'undefined')
-      selection = window.getSelection().getRangeAt(0);
-    console.log("selection", selection);
-    var selectedText = selection.extractContents();
+    if (typeof(selection) == 'undefined')
+      rangeSelection = window.getSelection().getRangeAt(0);
+    else
+      rangeSelection = selection;
+    console.log("selection", rangeSelection);
+    var selectedText = rangeSelection.extractContents();
     var spanStyles = {
       backgroundColor: hexColor,
       fontWeight: 'normal',
@@ -226,13 +229,15 @@
     }
 
     span.appendChild(selectedText);
-    selection.insertNode(span);
+    rangeSelection.insertNode(span);
+
+    var actualText = (typeof(selection) == 'undefined') ? span.innerText : "";
 
     return {
-      selection: selection,
+      selection: rangeSelection,
       spanStyles: spanStyles,
-      selectionObject: selection,
-      text: span.innerText,
+      selectionObject: rangeSelection,
+      text: actualText,
       parentCSSPath: getFullCSSPath(span.parentNode),
       currentCSSPath: getFullCSSPath(span)
     };
@@ -246,8 +251,7 @@
     if ($(e.target).hasClass('mdi-notification-sms-failed')) {
       clickSmallCommentIcon = true;
       mouseupAction('#90CAF9');
-    }
-    else
+    } else
       mouseupAction('#FEC324');
   });
 
