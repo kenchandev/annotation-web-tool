@@ -61,8 +61,10 @@
     'cursor': 'pointer',
     'font-size': '15px'
   }).appendTo(elements);
+
+  var countComments = $("<b></b>").addClass("comment-count").text("0").appendTo(elements);
   //  Need this to color for exstence of comments in a section...
-  $('.mdi-notification-sms-failed').each(function(i) {
+  $('i.mdi-notification-sms-failed').each(function(i) {
     commentsExistDict[getFullCSSPath($(this)[0].parentNode)] = $(this);
     var bubbleDiv = $('<div></div>').addClass('bubble').css('display', 'none').appendTo(bubbleContainer);
 
@@ -103,33 +105,34 @@
     }).appendTo(bubbleDiv);
     var listContainer = $("<ul></ul>").addClass('collection').css({'border': 'none', 'margin': '0px'}).appendTo(commentList);
 
-    var index = $(".mdi-notification-sms-failed").index(this);
+    var index = $("i.mdi-notification-sms-failed").index(this);
     htmlTagListDict[getFullCSSPath($(this)[0].parentNode)] = $('.bubble-items .bubble:nth-of-type(' + (index + 1) + ')');
     console.log(htmlTagListDict);
   });
 
   //  Set the action listener for the button
-  // function setCommentIconAction(onoff) {
+  function setCommentIconAction() {
+      $('.bubble-items .bubble').hide();
+    var index = $("i.mdi-notification-sms-failed").index(this);
+      var position = $(this).position();
+      console.log($('.bubble-items .bubble:nth-of-type(' + (index + 1) + ')').css('display'));
+      var width = $(this).width(); //  Take into account additional padding/margins
+        $('.bubble-items .bubble:nth-of-type(' + (index + 1) + ')').css({
+          position: "absolute",
+          top: (position.top + 30) + "px",
+          left: (position.left - Math.floor(250 / 2) + 7) + "px" //  Half of the width of the comment box...
+        }).show();
     // if (onoff) {
-      $('.mdi-notification-sms-failed').off("click");
-      $('.mdi-notification-sms-failed').on("click", function() {
-        var index = $(".mdi-notification-sms-failed").index(this);
-        var position = $(this).position();
-        console.log($('.bubble-items .bubble:nth-of-type(' + (index + 1) + ')').css('display'));
-        var width = $(this).width(); //  Take into account additional padding/margins
-          $('.bubble-items .bubble:nth-of-type(' + (index + 1) + ')').css({
-            position: "absolute",
-            top: (position.top + 30) + "px",
-            left: (position.left - Math.floor(250 / 2) + 7) + "px" //  Half of the width of the comment box...
-          }).toggle();
-      });
+    
     // } 
     // else {
     //   $('.mdi-notification-sms-failed').off("click");
     // }
-  // }
+  }
 
-  // setCommentIconAction(true);
+
+    $('i.mdi-notification-sms-failed').one("click", setCommentIconAction);
+
 
   /******
 
@@ -294,9 +297,11 @@
       console.log(bubbleElement);
 
       renderComments(name, item, bubbleElement.selector);
+      var count = parseInt($(item.parentPath + ' ' + '.comment-count').text()) + 1;
+      $(item.parentPath + ' ' + '.comment-count').text(count);
     }
     if (item.parentPath in commentsExistDict)
-      $('.mdi-notification-sms-failed').filter(function(i) {
+      $('i.mdi-notification-sms-failed').filter(function(i) {
         console.log("Yay!");
         return $(this).is(commentsExistDict[item.parentPath]);
       }).css('color', '#26A69A');
@@ -348,17 +353,27 @@
   }
 
   function toggleCommentFunction() {
-    $(".comment-area").toggle(function() {
-        $(".comment-area").animate({
-          "right": "-15%"
-        }, "fast");
-      },
-      function() {
-        $(".comment-area").animate({
-          "right": "0%"
-        }, "fast");
+    
+  }
 
-      });
+  //  Handling archival comments
+  $(".mdi-content-archive").one("click", handler_archive_one);
+
+  function handler_archive_one() {
+    //  Starts as white.
+    //  If it's currently white, let's turn on the icon.
+    ($(this).hasClass('off-annotation')) ? iconOn($(this)): iconOff($(this));
+
+    printComments(true);
+
+    $(this).one("click", handler_archive_two);
+  }
+
+  function handler_archive_two() {
+    printAllFlag = false;
+    ($('.mdi-content-archive').hasClass('on-annotation')) ? iconOff($('.mdi-content-archive')): iconOn($('.mdi-content-archive'));
+
+    $('.mdi-content-archive').one("click", handler_archive_one);
   }
 
 
@@ -484,11 +499,14 @@
   }
 
   function mouseupAction(parentRefFlag, cssColor, cssStyle) {
+
     var selectedObj = highlightText(cssColor, cssStyle);
     if (parentRefFlag === 1) parentCSSRefPath = selectedObj.parentCSSPath;
     currentRef = insertComment(selectedObj);
 
     var parentBubbleSelector = htmlTagListDict[selectedObj.parentCSSPath].selector;
+
+    //  Turn off any bubble coments, and then turn it back on!
 
     $(parentBubbleSelector + ' ' + '.comment-area textarea').off("keyup");
     // $(parentBubbleSelector + ' ' + ".comment-area").show();
@@ -504,14 +522,15 @@
 
     printComments(false, selectedObj, parentBubbleSelector);
 
-    var position = $(selectedObj.parentCSSPath + ' ' + '.mdi-notification-sms-failed').position();
-    var width = $(selectedObj.parentCSSPath + ' ' + '.mdi-notification-sms-failed').width();
+    var position = $(selectedObj.parentCSSPath + ' ' + 'i.mdi-notification-sms-failed').position();
+    var width = $(selectedObj.parentCSSPath + ' ' + 'i.mdi-notification-sms-failed').width();
 
+    $('.bubble-items .bubble').hide();
     htmlTagListDict[selectedObj.parentCSSPath].css({
       position: "absolute",
       top: (position.top + 30) + "px",
       left: (position.left - Math.floor(250 / 2) + 7) + "px" //  Half of the width of the comment box...
-    }).toggle();
+    }).show();
 
     $(parentBubbleSelector + ' ' + '.comment-area textarea').focus();
     $(parentBubbleSelector + ' ' + '.comment-area textarea').keyup(function() {
@@ -535,12 +554,12 @@
     //   }, "fast");
     // }
 
-    $(parentBubbleSelector + ' ' + '.comment-list .collection').animate({
+    $(parentBubbleSelector + ' ' + '.comment-list').animate({
       scrollTop: $(this).height()
-    }, "slow");
+    }, "fast");
 
     //  Dump everything from the Firebase archive.
-    $(parentBubbleSelector + ' ' + '.comment-list .collection').empty();
+    // $(parentBubbleSelector + ' ' + '.comment-list .collection').empty();
 
     if (typeof(selectedObj) !== 'undefined') {
       for (var property in internalCommentsDict) {
