@@ -32,5 +32,5 @@ function cssInjection(href) {
   "https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js",
   "https://cdn.firebase.com/js/client/2.2.6/firebase.js",
   "https://cdnjs.cloudflare.com/ajax/libs/materialize/0.96.1/js/materialize.min.js",
-  "js/annotate.js"
+  "js/annotate.min.js"
 ].forEach(scriptInjection);
