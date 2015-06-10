@@ -5,7 +5,7 @@
   var container = $("script#annotate").attr("container");
   var elements = $("script#annotate").attr("elements");
   //  Additional styles for "on" and "off" annotations and speech bubbles for listing comments.
-  $("<style type='text/css'> .on-annotation{ color:#26A69A; } .off-annotation{ color:#FFFFFF;} .bubble{ position: relative; width: 250px; height: 350px; padding: 0px; background: #26A69A; -webkit-border-radius: 10px; -moz-border-radius: 10px; border-radius: 10px; } .bubble:after { content: ''; position: absolute; border-style: solid; border-width: 0px 20px 15px; border-color: #252525 transparent; display: block; width: 0; z-index: 1; top: -14px; left: 105px; } </style>").appendTo("head");
+  $("<style type='text/css'> .on-annotation{ color:#26A69A; } .off-annotation{ color:#FFFFFF;} .bubble{ position: relative; width: 250px; height: 350px; padding: 0px; background: #26A69A; -webkit-border-radius: 10px; -moz-border-radius: 10px; border-radius: 10px; } .bubble:after { content: ''; position: absolute; border-style: solid; border-width: 0px 20px 15px; border-color: #252525 transparent; display: block; width: 0; top: -14px; left: 105px; } </style>").appendTo("head");
 
   //  Create the annotation bar with icons...
   var annotationBar = document.createElement("div");
@@ -46,7 +46,8 @@
   var twitterHandle = "@Anonymous";
   var currentRef;
   var parentCSSRefPath = null;
-  var printAllFlag = true;
+  var printAllFlag = false;
+  var initialFlag = true;
   var clickSmallCommentIcon = false; //  Need to check if the user clicked on the comment icon. This is the legitimate method for making a comment with regards to the general scope of the paragraph.
   var commentsExistDict = {};
   var internalCommentsDict = {};
@@ -55,6 +56,37 @@
   // var last10Comments = commentsRef.limit(10);
 
   var bubbleContainer = $("<div></div>").addClass('bubble-items').appendTo(container);
+
+
+  //  Append the overlay and the overall comments list...
+  var overlay = $("<div></div>").attr('id', 'overlay').css({
+    'height': '100%',
+    'width': '95%',
+    'position': 'fixed',
+    'background-color': 'rgba(0,0,0,0.5)',
+    'top': '0%',
+    'left': '0%',
+    'display': 'none'
+  }).appendTo(container);
+  var allCommentsList = $("<div></div>").addClass('container').attr('id', 'all-comments-list').css({
+    'height': '50%',
+    'width': '30%',
+    'position': 'fixed',
+    'top': '25%',
+    'left': '35%',
+    'background-color': '0px 0px 16px rgba(0,0,0,0.6)',
+    'box-shadow': '0px 0px 16px rgba(0,0,0,0.6)',
+    'display': 'none',
+    'text-align': 'center',
+    'overflow': 'scroll',
+    'font-size': '8px',
+    'padding': '0px',
+    'border': '1px solid #e0e0e0'
+  }).appendTo(container);
+  var allListContainer = $("<ul></ul>").addClass('entire-collection collection').css({
+      'border': 'none',
+      'margin': '0px'
+    }).appendTo(allCommentsList);
 
   //  Append comment icons to the end of each paragraph/header tag
   var iconsDivs = $("<i></i>").addClass("mdi-notification-sms-failed").css({
@@ -91,7 +123,8 @@
       "top": "0rem",
       "right": "0.1rem",
       "width": "20px",
-      "height": "20px"
+      "height": "20px",
+      "z-index": "0"
     }).appendTo(inputField);
     var addButtonIcon = $("<i></i>").addClass("mdi-content-add").css({
       "line-height": "20px",
@@ -247,7 +280,7 @@
     $('#text-box').find('.selected-text').contents().unwrap();
   }
 
-  $(container).on('mouseup', function(e) {
+  $(elements).on('mouseup', function(e) {
     if ($(e.target).hasClass('mdi-notification-sms-failed')) {
       clickSmallCommentIcon = true;
       mouseupAction('#90CAF9');
@@ -282,7 +315,7 @@
       console.log("so cold...");
       if (clickSmallCommentIcon) {
         console.log("Inside!!!");
-        clickSmallCommentIcon = false;
+        clickSmallCommentIcon = false; //  resetting this...
         return commentsRef.push({
           spanStyles: selectedObj.spanStyles,
           selectionObject: selectedObj.selectionObject,
@@ -300,7 +333,7 @@
     }
   }
 
-  $(container).on('mousedown', function() {
+  $(elements).on('mousedown', function() {
     unhighlightText();
   });
 
@@ -348,15 +381,25 @@
     internalCommentsDict[name] = item;
 
     console.log(item.parentPath);
-
-    if (item.parentPath === parentCSSRefPath || printAllFlag === true) {
+    console.log('printAllFlag', printAllFlag);
+    if (item.parentPath === parentCSSRefPath || initialFlag === true) {
       var bubbleElement = htmlTagListDict[item.parentPath];
 
       console.log(bubbleElement);
 
       renderComments(name, item, bubbleElement.selector);
+      renderComments(name, item, '.entire-collection');
       var count = parseInt($(item.parentPath + ' ' + '.comment-count').text()) + 1;
       $(item.parentPath + ' ' + '.comment-count').text(count);
+
+
+      var scrollValue = $(bubbleElement.selector + ' ' + '.comment-list')[0].scrollHeight;
+      console.log(scrollValue);
+      $(bubbleElement.selector + ' ' + '.comment-list').animate({
+        scrollTop: scrollValue
+      }, 'fast');
+
+
     }
     if (item.parentPath in commentsExistDict)
       $('i.mdi-notification-sms-failed').filter(function(i) {
@@ -402,14 +445,14 @@
   $(".mdi-editor-insert-comment").one("click", handler_comment_one);
 
   function handler_comment_one() {
-    ($(this).hasClass('off-annotation')) ? iconOn($(this)): iconOff($(this));
-    toggleCommentFunction();
+    ($(this).hasClass('off-annotation')) ? iconOn($(this)): (iconOff($(this)), $('.bubble-items .bubble textarea').blur(), $('.bubble-items .bubble').hide());
+
     $(this).one("click", handler_comment_two);
   }
 
   function handler_comment_two() {
-    ($(this).hasClass('off-annotation')) ? iconOn($(this)): iconOff($(this));
-    toggleCommentFunction();
+    ($(this).hasClass('off-annotation')) ? iconOn($(this)): (iconOff($(this)), $('.bubble-items .bubble textarea').blur(), $('.bubble-items .bubble').hide());
+
     $(this).one("click", handler_comment_one);
   }
 
@@ -421,16 +464,18 @@
     //  If it's currently white, let's turn on the icon.
     ($(this).hasClass('off-annotation')) ? iconOn($(this)): iconOff($(this));
 
-    printComments(true);
+    printComments(true, undefined, '.entire-collection');
 
     $(this).one("click", handler_archive_two);
   }
 
   function handler_archive_two() {
-    printAllFlag = false;
-    ($('.mdi-content-archive').hasClass('on-annotation')) ? iconOff($('.mdi-content-archive')): iconOn($('.mdi-content-archive'));
+    // printAllFlag = false;
+    ($(this).hasClass('off-annotation')) ? iconOn($(this)) : iconOff($(this));
 
-    $('.mdi-content-archive').one("click", handler_archive_one);
+    printComments(false, undefined, '.entire-collection');
+    
+    $(this).one("click", handler_archive_one);
   }
 
 
@@ -446,16 +491,20 @@
     var selector = (typeof(selector1) !== 'undefined' && typeof(selector2) !== 'undefined' && typeof(selector3) !== 'undefined' && typeof(selector4) !== 'undefined') ? selector1.add(selector2).add(selector3).add(selector4) : selector1;
 
     selector.off("mouseout");
-    selector.off("click");
+    
     selector.on("mouseout", function() {
       $(this).css("color", "white");
     });
     // selector.css("color", "white");
     selector.removeClass('on-annotation').addClass('off-annotation');
     selector.css('color', '#FFFFFF');
-    selector.one("click", function() {
-      handler_one($(this));
-    });
+    if(!selector.hasClass('mdi-content-archive'))
+    {
+      selector.off("click");
+      selector.one("click", function() {
+        handler_one($(this));
+      });
+    }
   }
 
   /***
@@ -537,10 +586,10 @@
   function setNewActions(selector, cssStyle, cssColor, handler) {
     //  Resetting actions is extremely important since old actions will carry on if they are not turned off.
     hoverActions();
-    $(container).off('mouseup');
-    $(container).off('mousedown');
+    $(elements).off('mouseup');
+    $(elements).off('mousedown');
 
-    $(container).on('mouseup', function(e) {
+    $(elements).on('mouseup', function(e) {
       if ($(e.target).hasClass('mdi-notification-sms-failed')) {
         clickSmallCommentIcon = true;
         cssColor = '#90CAF9';
@@ -548,7 +597,7 @@
       mouseupAction(cssColor, cssStyle);
     });
 
-    $(container).on('mousedown', function() {
+    $(elements).on('mousedown', function() {
       unhighlightText();
     });
 
@@ -578,6 +627,7 @@
 
       $(parentBubbleSelector + ' ' + '.comment-area textarea').off("keyup");
       $('i.mdi-notification-sms-failed').off("click");
+      $('i.mdi-notification-sms-failed').one("click", setCommentIconAction);
       // $(parentBubbleSelector + ' ' + ".comment-area").show();
       // if ($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%") {
       //   $(".comment-area").css("display", "block").animate({
@@ -589,7 +639,7 @@
       iconOff($('.mdi-content-archive'));
       // setCommentIconAction(false);
 
-      printComments(false, selectedObj, parentBubbleSelector);
+      // printComments(true, selectedObj, parentBubbleSelector);
 
       var position = $(selectedObj.parentCSSPath + ' ' + 'i.mdi-notification-sms-failed').position();
       var width = $(selectedObj.parentCSSPath + ' ' + 'i.mdi-notification-sms-failed').width();
@@ -600,6 +650,12 @@
         top: (position.top + 30) + "px",
         left: (position.left - Math.floor(250 / 2) + 7) + "px" //  Half of the width of the comment box...
       }).show();
+
+      var scrollValue = $(parentBubbleSelector + ' ' + '.comment-list')[0].scrollHeight;
+      console.log(scrollValue);
+      $(parentBubbleSelector + ' ' + '.comment-list').animate({
+        scrollTop: scrollValue
+      }, 'fast');
 
       $(parentBubbleSelector + ' ' + '.comment-area textarea').focus();
       $(parentBubbleSelector + ' ' + '.comment-area textarea').keyup(function() {
@@ -629,37 +685,42 @@
   function printComments(printFlag, selectedObj, parentBubbleSelector) {
     printAllFlag = printFlag;
 
+    if (printAllFlag == true){
+      $('#overlay').show();
+      $('#all-comments-list').show();
+    }
+    else{
+      $('#overlay').hide();
+      $('#all-comments-list').hide();
+    }
     // if ($('.comment-list').css('right') === "-15%" || $('.comment-list').css('right') === "0%") {
     //   $(".comment-list").css("display", "block").animate({
     //     "right": "0%"
     //   }, "fast");
     // }
-    var scrollValue = $(parentBubbleSelector + ' ' + '.comment-list')[0].scrollHeight;
-    console.log(scrollValue);
-    $(parentBubbleSelector + ' ' + '.comment-list').animate({
-      scrollTop: scrollValue
-    }, 'fast');
+    
 
     //  Dump everything from the Firebase archive.
     // $(parentBubbleSelector + ' ' + '.comment-list .collection').empty();
 
-    console.log(internalCommentsDict);
+    // if (typeof(selectedObj) !== 'undefined') {
+    //   if(printAllFlag == false){
+    //     for (var property in internalCommentsDict) {
+    //       var nameObj = internalCommentsDict[property];
+    //       if (nameObj.parentPath == selectedObj.parentCSSPath) //  Print comments for particular section.
+    //       // renderComments(property, nameObj, parentBubbleSelector);
+    //         console.log("..");
+    //     }
+    //   }
+    // } else {
+    // if (printAllFlag == true){
+    //   for (var property in internalCommentsDict) {
+    //     var nameObj = internalCommentsDict[property]; //  Print all comments.
+    //     renderComments(property, nameObj, parentBubbleSelector);
+    //   }
+    // }
+    // }
 
-    if (typeof(selectedObj) !== 'undefined') {
-      for (var property in internalCommentsDict) {
-        var nameObj = internalCommentsDict[property];
-        if (nameObj.parentPath == selectedObj.parentCSSPath && printAllFlag == false) //  Print comments for particular section.
-        // renderComments(property, nameObj, parentBubbleSelector);
-          console.log("..");
-      }
-    } else {
-      for (var property in internalCommentsDict) {
-        var nameObj = internalCommentsDict[property]; //  Print all comments.
-        renderComments(property, nameObj, parentBubbleSelector);
-      }
-    }
-
-    $('i.mdi-notification-sms-failed').one("click", setCommentIconAction);
     // setCommentIconAction(true);
   }
 
@@ -667,6 +728,7 @@
     var annotationMethod;
     var rawBackgroundColor = nameObj.spanStyles.backgroundColor;
     var backgroundColor = (rawBackgroundColor == "#FEC324" || rawBackgroundColor == "#90CAF9") ? "background-color:" + nameObj.spanStyles.backgroundColor + ';' : '';
+    var collectionDiv;
 
     if (nameObj.spanStyles.backgroundColor == "#FEC324")
       annotationMethod = "Highlighted Text";
@@ -681,11 +743,14 @@
     else
       annotationMethod = "No Text Selected";
 
-    $(parentBubbleSelector + ' ' + '.comment-list .collection').append(
-      '<a href="#!" class="collection-item" style="line-height:0.7rem; font-size:10px;" id="' + property + '">' +
-      "<strong style='display:inline-block; float:right;'>" + nameObj.twitterName + "</strong>" + "<br/>" + "<span>" + annotationMethod + "</span>" + ": " + "<br/>" + "<span class='highlighted-text' style='color:#252525; " + backgroundColor + " font-style:" + nameObj.spanStyles.fontStyle + "; font-weight:" + nameObj.spanStyles.fontWeight + "; text-decoration:" + nameObj.spanStyles.textDecoration + ";'>" + nameObj.highlighted_text + "</span>" + "<br/>" + "<span>Comment</span>" + ": " + "<br/>" + "<span class='comment-text' style='color:#252525;'>" + nameObj.comment + "</span>" +
-      '</li>'
-    );
+    if(parentBubbleSelector == '.entire-collection')
+      collectionDiv = $('.entire-collection');
+    else
+      collectionDiv = $(parentBubbleSelector + ' ' + '.comment-list .collection')
+
+    collectionDiv.append('<a href="#!" class="collection-item" style="line-height:0.7rem; font-size:10px;" id="' + property + '">' + "<strong style='display:inline-block; float:right;'>" + nameObj.twitterName + "</strong>" + "<br/>" + "<span>" + annotationMethod + "</span>" + ": " + "<br/>" + "<span class='highlighted-text' style='color:#252525; " + backgroundColor + " font-style:" + nameObj.spanStyles.fontStyle + "; font-weight:" + nameObj.spanStyles.fontWeight + "; text-decoration:" + nameObj.spanStyles.textDecoration + ";'>" + nameObj.highlighted_text + "</span>" + "<br/>" + "<span>Comment</span>" + ": " + "<br/>" + "<span class='comment-text' style='color:#252525;'>" + nameObj.comment + "</span>" +
+        '</li>'
+      );
   }
 
 }(window, jQuery));
