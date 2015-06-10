@@ -21,7 +21,7 @@ There are three components to the tool:
 -	An archival icon on the fixed side-panel enables the user to see the total number of comments added along with a list of all the comments. This number and list are updated in real-time if other users accessing the same application add comments.
 
 Within the side-panel, there are eight icons (from top to bottom):
--	Twitter login
+-	Twitter login (works for localhost deployment, but not github.io deployment despite specifying the URL as an authorized domain)
 -	Toggling off comments / Indicating if any comment panels are shown on the webpage
 -	Highlight text
 -	Bold text
