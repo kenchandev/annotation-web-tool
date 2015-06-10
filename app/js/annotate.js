@@ -309,7 +309,8 @@
   };
 
   function insertComment(selectedObj) {
-    if (selectedObj.text) {
+    console.log(clickSmallCommentIcon);
+    if (selectedObj.text && !clickSmallCommentIcon) {
       //  Returns a reference to the object inserted thus far.
       return commentsRef.push({
         spanStyles: selectedObj.spanStyles,
@@ -603,15 +604,22 @@
     $(elements).off('mousedown');
 
     $(elements).on('mouseup', function(e) {
-      cssColor = ($('.mdi-editor-format-bold').hasClass('off-annotation') && $('.mdi-editor-format-italic').hasClass('off-annotation') && $('.mdi-editor-format-color-text').hasClass('off-annotation') && $('.mdi-editor-format-clear').hasClass('off-annotation')) ? "#FEC324" : "#FFFFFF"; //  if all off, then set the highlight color to defult yellow-orange
+      if ($('.mdi-editor-format-bold').hasClass('off-annotation') && $('.mdi-editor-format-italic').hasClass('off-annotation') && $('.mdi-editor-format-color-text').hasClass('off-annotation') && $('.mdi-editor-format-clear').hasClass('off-annotation')) {
+        iconOn(highlight);
+        cssColor = "#FEC324";
+      } else {
+        cssColor = "#FFFFFF"; //  if all off, then set the highlight color to defult yellow-orange
+      }
       console.log(cssColor);
       if ($(e.target).hasClass('mdi-notification-sms-failed')) {
+        iconOff(underline, italic, bold, strike);
         console.log("Inside here...");
         cssColor = '#90CAF9';
         clickSmallCommentIcon = true;
         cssStyle = undefined;
         mouseupAction(cssColor, cssStyle, undefined, $(this));
       } else {
+
         clickSmallCommentIcon = false;
         mouseupAction(cssColor, cssStyle);
       }
@@ -709,10 +717,13 @@
       function bubbleAddButton(parentBubbleSelector) {
         $(parentBubbleSelector + ' ' + '.comment-area textarea').val("");
         clickSmallCommentIcon = true;
-        if (typeof(thisSelector) == 'undefined')
+        if (typeof(thisSelector) == 'undefined') {
+          console.log("Need this reference...");
           mouseupAction('#90CAF9', undefined, selectedObj.selection);
-        else
+        } else {
+          console.log("New to this...");
           mouseupAction('#90CAF9', undefined, undefined, thisSelector);
+        }
       }
     }
   }
