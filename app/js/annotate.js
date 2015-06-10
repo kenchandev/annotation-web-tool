@@ -362,12 +362,14 @@
 
   commentsRef.on('child_added', function(snapshot) {
     var item = snapshot.val();
-    var name = snapshot.name().substring(1);
+    var name = snapshot.name().split('-').join('');
 
     internalCommentsDict[name] = item;
 
     if (item.parentPath === parentCSSRefPath || initialFlag === true) {
       var bubbleElement = htmlTagListDict[item.parentPath];
+
+      console.log(name);
 
       renderComments(name, item, bubbleElement.selector);
       renderComments(name, item, '.entire-collection');
@@ -397,20 +399,19 @@
 
   commentsRef.on('child_changed', function(snapshot) {
     var comment = snapshot.val().comment;
-    var name = snapshot.name().substring(1);
+    var name = snapshot.name().split('-').join('');
     $("." + name + " span.comment-text").text(comment);
     internalCommentsDict[name].comment = comment;
   });
 
   commentsRef.on("child_removed", function(snapshot) {
-    var name = snapshot.name().substring(1);
+    var name = snapshot.name().split('-').join('');
     $("." + name).remove();
 
     var count = parseInt($(snapshot.val().parentPath + ' ' + '.comment-count').text()) - 1;
     $(snapshot.val().parentPath + ' ' + '.comment-count').text(count);
     var overallCount = parseInt($('#overall-counter').text()) - 1;
     $('#overall-counter').text(overallCount);
-
     delete internalCommentsDict[name];
   });
 
@@ -611,7 +612,7 @@
       $(parentBubbleSelector + ' ' + 'textarea').focus();
       var oldValue = "";
 
-      $(parentBubbleSelector + ' ' + '.comment-area textarea').off('change keyup paste');
+      $(parentBubbleSelector + ' ' + 'textarea').off('change keyup paste');
       $(parentBubbleSelector + ' ' + 'textarea').on('change keyup paste', function() {
         var currentValue = $(this).val();
         if (currentValue != oldValue) {
@@ -719,7 +720,7 @@
     else
       collectionDiv = $(parentBubbleSelector + ' ' + '.comment-list .collection')
 
-    collectionDiv.append('<a href="#!" class="collection-item" style="line-height:0.7rem; font-size:10px;" class="' + property + '">' + "<strong style='display:inline-block; float:right;'>" + nameObj.twitterName + "</strong>" + "<br/>" + "<span>" + annotationMethod + "</span>" + ": " + "<br/>" + "<span class='highlighted-text' style='color:#252525; " + backgroundColor + " font-style:" + nameObj.spanStyles.fontStyle + "; font-weight:" + nameObj.spanStyles.fontWeight + "; text-decoration:" + nameObj.spanStyles.textDecoration + ";'>" + nameObj.highlighted_text + "</span>" + "<br/>" + "<span>Comment</span>" + ": " + "<br/>" + "<span class='comment-text' style='color:#252525;'>" + nameObj.comment + "</span>" +
+    collectionDiv.append('<a href="#!" style="line-height:0.7rem; font-size:10px;" class="collection-item ' + property + '">' + "<strong style='display:inline-block; float:right;'>" + nameObj.twitterName + "</strong>" + "<br/>" + "<span>" + annotationMethod + "</span>" + ": " + "<br/>" + "<span class='highlighted-text' style='color:#252525; " + backgroundColor + " font-style:" + nameObj.spanStyles.fontStyle + "; font-weight:" + nameObj.spanStyles.fontWeight + "; text-decoration:" + nameObj.spanStyles.textDecoration + ";'>" + nameObj.highlighted_text + "</span>" + "<br/>" + "<span>Comment</span>" + ": " + "<br/>" + "<span class='comment-text' style='color:#252525;'>" + nameObj.comment + "</span>" +
       '</li>'
     );
   }
