@@ -610,9 +610,13 @@
         cssColor = '#90CAF9';
         clickSmallCommentIcon = true;
         cssStyle = undefined;
+        mouseupAction(cssColor, cssStyle, undefined, $(this));
+      } else {
+        clickSmallCommentIcon = false;
+        mouseupAction(cssColor, cssStyle);
       }
-      mouseupAction(cssColor, cssStyle);
     });
+
 
     $(elements).on('mousedown', function() {
       unhighlightText();
