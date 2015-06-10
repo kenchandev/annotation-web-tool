@@ -87,7 +87,7 @@
     'border': 'none',
     'margin': '0px'
   }).appendTo(allCommentsList);
-  var overallCounter = $('<div></div>').attr('id','overall-counter').css({
+  var overallCounter = $('<div></div>').attr('id', 'overall-counter').css({
     'top': '15%',
     'height': '5%',
     'width': '5%',
@@ -168,7 +168,6 @@
 
     var index = $("i.mdi-notification-sms-failed").index(this);
     htmlTagListDict[getFullCSSPath($(this)[0].parentNode)] = $('.bubble-items .bubble:nth-of-type(' + (index + 1) + ')');
-    console.log(htmlTagListDict);
   });
 
   //  Set the action listener for the button
@@ -176,32 +175,12 @@
     $('.bubble-items .bubble').hide();
     var index = $("i.mdi-notification-sms-failed").index(this);
     var position = $(this).position();
-    console.log($('.bubble-items .bubble:nth-of-type(' + (index + 1) + ')').css('display'));
     var width = $(this).width(); //  Take into account additional padding/margins
     $('.bubble-items .bubble:nth-of-type(' + (index + 1) + ')').css({
       position: "absolute",
       top: (position.top + 30) + "px",
       left: (position.left - Math.floor(250 / 2) + 7) + "px" //  Half of the width of the comment box...
     }).show();
-
-    console.log("It's been clicked!");
-    // if (onoff) {
-
-    // } 
-    // else {
-    //   $('.mdi-notification-sms-failed').off("click");
-    // }
-    // $(document).mouseup(function (e)
-    // {
-    //   var container = $('.bubble-items .bubble:nth-of-type(' + (index + 1) + ')');
-
-    //   if (!container.is(e.target) // if the target of the click isn't the container...
-    //       && container.has(e.target).length === 0) // ... nor a descendant of the container
-    //   {
-    //       container.hide();
-    //       $(this).off('mouseup');
-    //   }
-    // });
   }
 
   $('i.mdi-notification-sms-failed').one("click", setCommentIconAction);
@@ -229,7 +208,6 @@
   }
 
   function highlightText(hexColor, fontStyle, selection) {
-    console.log("Inside Highlight");
     //  Clear the old comment
     var rangeSelection;
     $('.materialize-textarea').val("");
@@ -237,7 +215,6 @@
       rangeSelection = window.getSelection().getRangeAt(0);
     else
       rangeSelection = selection;
-    console.log("selection", rangeSelection);
     var selectedText = rangeSelection.extractContents();
     var spanStyles = {
       backgroundColor: hexColor,
@@ -309,8 +286,7 @@
 
   function insertComment(selectedObj) {
     if (selectedObj.text) {
-      console.log("Hello!!!")
-        //  Returns a reference to the object inserted thus far.
+      //  Returns a reference to the object inserted thus far.
       return commentsRef.push({
         spanStyles: selectedObj.spanStyles,
         selectionObject: selectedObj.selectionObject,
@@ -323,9 +299,7 @@
         parentPath: selectedObj.parentCSSPath
       });
     } else {
-      console.log("so cold...");
       if (clickSmallCommentIcon) {
-        console.log("Inside!!!");
         clickSmallCommentIcon = false; //  resetting this...
         return commentsRef.push({
           spanStyles: selectedObj.spanStyles,
@@ -391,12 +365,8 @@
 
     internalCommentsDict[name] = item;
 
-    console.log(item.parentPath);
-    console.log('printAllFlag', printAllFlag);
     if (item.parentPath === parentCSSRefPath || initialFlag === true) {
       var bubbleElement = htmlTagListDict[item.parentPath];
-
-      console.log(bubbleElement);
 
       renderComments(name, item, bubbleElement.selector);
       renderComments(name, item, '.entire-collection');
@@ -407,7 +377,6 @@
       $('#overall-counter').text(overallCount);
 
       var scrollSingle = $(bubbleElement.selector + ' ' + '.comment-list')[0].scrollHeight; //  [0] for DOM object.
-      console.log(scrollSingle);
       $(bubbleElement.selector + ' ' + '.comment-list').animate({
         scrollTop: scrollSingle
       }, 'fast');
@@ -421,7 +390,6 @@
     }
     if (item.parentPath in commentsExistDict)
       $('i.mdi-notification-sms-failed').filter(function(i) {
-        console.log("Yay!");
         return $(this).is(commentsExistDict[item.parentPath]);
       }).css('color', '#26A69A');
   });
@@ -626,20 +594,31 @@
   }
 
   function mouseupAction(cssColor, cssStyle, selection) {
-    console.log("Inside mouseupAction");
     var selectedObj = highlightText(cssColor, cssStyle, selection);
-    console.log(selectedObj);
-    parentCSSRefPath = selectedObj.parentCSSPath;
+    parentCSSRefPath = selectedObj.parentCSSPath; //  global.
+    var parentBubbleSelector = htmlTagListDict[selectedObj.parentCSSPath].selector;
+
+    if (clickSmallCommentIcon) { //  IF the user has just click on the comment icon, they should only be able to see the icon. However, once the comments finish loading, if the user wishes to add a comment, then he/she must type into the text box...
+      $(parentBubbleSelector + ' ' + 'textarea').focus();
+      var oldValue = "";
+
+      $(parentBubbleSelector + ' ' + 'textarea').on('change keyup paste', function() {
+        var currentValue = $(this).val();
+        if (currentValue != oldValue) {
+          oldValue = currentValue;
+          $(this).off('change keyup paste');
+          bubbleActions(selectedObj, parentBubbleSelector);
+        }
+      });
+    } else {
+      bubbleActions(selectedObj, parentBubbleSelector);
+    }
+  }
+
+  function bubbleActions(selectedObj, parentBubbleSelector) {
     currentRef = insertComment(selectedObj);
 
     if (currentRef) {
-      var parentBubbleSelector = htmlTagListDict[selectedObj.parentCSSPath].selector;
-
-      console.log("selectedObj", selectedObj);
-      console.log("parentCSSRefPath", parentCSSRefPath);
-      console.log("currentRef", currentRef);
-      console.log("parentBubbleSelector", parentBubbleSelector);
-
       //  Turn off any bubble coments, and then turn it back on!
 
       $(parentBubbleSelector + ' ' + '.comment-area textarea').off("keyup");
@@ -663,7 +642,6 @@
       }).show();
 
       var scrollValue = $(parentBubbleSelector + ' ' + '.comment-list')[0].scrollHeight;
-      console.log(scrollValue);
       $(parentBubbleSelector + ' ' + '.comment-list').animate({
         scrollTop: scrollValue
       }, 'fast');
@@ -683,12 +661,12 @@
 
       function bubbleAddButton(parentBubbleSelector) {
         $(parentBubbleSelector + ' ' + '.comment-area textarea').val("");
+        $(parentBubbleSelector + ' ' + '.comment-area textarea').off();
         clickSmallCommentIcon = true;
         mouseupAction('#90CAF9', undefined, selectedObj.selection);
       }
     }
   }
-
 
   //  Time to switch from subselection of comments to all comments
 
