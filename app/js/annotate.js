@@ -207,15 +207,24 @@
     return names.join(" > ");
   }
 
-  function highlightText(hexColor, fontStyle, selection) {
+  function highlightText(hexColor, fontStyle, selection, commentTagSelector) {
     //  Clear the old comment
     var rangeSelection;
+    var selectedText;
+
+    console.log(commentTagSelector);
     $('.materialize-textarea').val("");
-    if (typeof(selection) == 'undefined')
-      rangeSelection = window.getSelection().getRangeAt(0);
-    else
+    if (typeof(selection) == 'undefined') {
+      if (clickSmallCommentIcon) {
+        rangeSelection = undefined;
+      } else
+        rangeSelection = window.getSelection().getRangeAt(0);
+    } else
       rangeSelection = selection;
-    var selectedText = rangeSelection.extractContents();
+
+    if (typeof(rangeSelection) !== 'undefined')
+      selectedText = rangeSelection.extractContents();
+
     var spanStyles = {
       backgroundColor: hexColor,
       fontWeight: 'normal',
@@ -249,19 +258,33 @@
       span.style.textDecoration = 'none';
     }
 
-    span.appendChild(selectedText);
-    rangeSelection.insertNode(span);
+    if (typeof(rangeSelection) !== 'undefined') {
+      span.appendChild(selectedText);
+      rangeSelection.insertNode(span);
+      actualText = span.textContent;
 
-    var actualText = (typeof(selection) == 'undefined') ? span.innerText : "";
+      return {
+        selection: rangeSelection,
+        spanStyles: spanStyles,
+        selectionObject: rangeSelection,
+        text: actualText,
+        parentCSSPath: getFullCSSPath(span.parentNode),
+        currentCSSPath: getFullCSSPath(span)
+      };
+    } else {
 
-    return {
-      selection: rangeSelection,
-      spanStyles: spanStyles,
-      selectionObject: rangeSelection,
-      text: actualText,
-      parentCSSPath: getFullCSSPath(span.parentNode),
-      currentCSSPath: getFullCSSPath(span)
-    };
+      actualText = "";
+
+      return {
+        selection: rangeSelection,
+        spanStyles: spanStyles,
+        selectionObject: rangeSelection,
+        text: actualText,
+        parentCSSPath: getFullCSSPath(commentTagSelector[0]),
+        currentCSSPath: getFullCSSPath(commentTagSelector[0])
+      };
+
+    }
   }
 
   function unhighlightText() {
@@ -272,7 +295,7 @@
     if ($(e.target).hasClass('mdi-notification-sms-failed')) {
       console.log("Somewhere over the rainbow...");
       clickSmallCommentIcon = true;
-      mouseupAction('#90CAF9');
+      mouseupAction('#90CAF9', undefined, undefined, $(this));
     } else
       mouseupAction('#FEC324');
   });
@@ -290,7 +313,7 @@
       //  Returns a reference to the object inserted thus far.
       return commentsRef.push({
         spanStyles: selectedObj.spanStyles,
-        selectionObject: selectedObj.selectionObject,
+        // selectionObject: selectedObj.selectionObject,
         twitterUserID: twitterUserID,
         twitterName: twitterName,
         twitterHandle: twitterHandle,
@@ -304,7 +327,7 @@
         clickSmallCommentIcon = false; //  resetting this...
         return commentsRef.push({
           spanStyles: selectedObj.spanStyles,
-          selectionObject: selectedObj.selectionObject,
+          // selectionObject: selectedObj.selectionObject,
           twitterUserID: twitterUserID,
           twitterName: twitterName,
           twitterHandle: twitterHandle,
@@ -602,8 +625,13 @@
     });
   }
 
-  function mouseupAction(cssColor, cssStyle, selection) {
-    var selectedObj = highlightText(cssColor, cssStyle, selection);
+  function mouseupAction(cssColor, cssStyle, selection, thisSelector) {
+    var selectedObj;
+
+    if (!clickSmallCommentIcon)
+      selectedObj = highlightText(cssColor, cssStyle, selection);
+    else
+      selectedObj = highlightText(cssColor, cssStyle, selection, thisSelector);
     console.log("Selected Object", selectedObj);
     parentCSSRefPath = selectedObj.parentCSSPath; //  global.
     var parentBubbleSelector = htmlTagListDict[selectedObj.parentCSSPath].selector;
@@ -618,16 +646,19 @@
         if (currentValue != oldValue) {
           oldValue = currentValue;
           $(this).off('change keyup paste');
-          bubbleActions(selectedObj, parentBubbleSelector);
+          bubbleActions(selectedObj, parentBubbleSelector, thisSelector);
         }
       });
     } else {
+      console.log("Testing from within");
       bubbleActions(selectedObj, parentBubbleSelector);
     }
   }
 
-  function bubbleActions(selectedObj, parentBubbleSelector) {
+  function bubbleActions(selectedObj, parentBubbleSelector, thisSelector) {
+    console.log(selectedObj);
     currentRef = insertComment(selectedObj);
+    console.log(htmlTagListDict[selectedObj.parentCSSPath].selector);
 
     if (currentRef) {
       //  Turn off any bubble coments, and then turn it back on!
@@ -646,6 +677,7 @@
       var width = $(selectedObj.parentCSSPath + ' ' + 'i.mdi-notification-sms-failed').width();
 
       $('.bubble-items .bubble').hide();
+      console.log(htmlTagListDict[selectedObj.parentCSSPath].selector);
       htmlTagListDict[selectedObj.parentCSSPath].css({
         position: "absolute",
         top: (position.top + 30) + "px",
@@ -673,16 +705,17 @@
       function bubbleAddButton(parentBubbleSelector) {
         $(parentBubbleSelector + ' ' + '.comment-area textarea').val("");
         clickSmallCommentIcon = true;
-        mouseupAction('#90CAF9', undefined, selectedObj.selection);
+        if (typeof(thisSelector) == 'undefined')
+          mouseupAction('#90CAF9', undefined, selectedObj.selection);
+        else
+          mouseupAction('#90CAF9', undefined, undefined, thisSelector);
       }
     }
   }
 
-  //  Time to switch from subselection of comments to all comments
-
-
+  //  Show all comments or hide all comments.
   function printComments(printFlag, selectedObj, parentBubbleSelector) {
-    printAllFlag = printFlag;
+    printAllFlag = printFlag; //  This is a flag value sent in as a parameter to set the global flag variable for keeping track of whether the user wants to see all the comments or not.
 
     if (printAllFlag == true) {
       $('#overlay').show();
@@ -696,12 +729,14 @@
 
   }
 
+  //  This function renders the comments onto the webpage in the appropriate locations.
   function renderComments(property, nameObj, parentBubbleSelector) {
     var annotationMethod;
     var rawBackgroundColor = nameObj.spanStyles.backgroundColor;
     var backgroundColor = (rawBackgroundColor == "#FEC324" || rawBackgroundColor == "#90CAF9") ? "background-color:" + nameObj.spanStyles.backgroundColor + ';' : '';
     var collectionDiv;
 
+    //  Determine which action was taken by the user based on the styling features recorded.
     if (nameObj.spanStyles.backgroundColor == "#FEC324")
       annotationMethod = "Highlighted Text";
     else if (nameObj.spanStyles.fontStyle == "italic")
@@ -715,11 +750,13 @@
     else
       annotationMethod = "No Text Selected";
 
+    //  If the user clicks on the archival button, this sets the parent selector to the .entire-collection div (fixed popup div).
     if (parentBubbleSelector == '.entire-collection')
       collectionDiv = $('.entire-collection');
-    else
+    else //  If the user clicks on the comment buttons next to each of the p tags, etc., this sets the parent selector to the parent of the .collection div for the section.
       collectionDiv = $(parentBubbleSelector + ' ' + '.comment-list .collection')
 
+    //  Add the items into the appropriate locations on the webpage. Render with the right styling features.
     collectionDiv.append('<a href="#!" style="line-height:0.7rem; font-size:10px;" class="collection-item ' + property + '">' + "<strong style='display:inline-block; float:right;'>" + nameObj.twitterName + "</strong>" + "<br/>" + "<span>" + annotationMethod + "</span>" + ": " + "<br/>" + "<span class='highlighted-text' style='color:#252525; " + backgroundColor + " font-style:" + nameObj.spanStyles.fontStyle + "; font-weight:" + nameObj.spanStyles.fontWeight + "; text-decoration:" + nameObj.spanStyles.textDecoration + ";'>" + nameObj.highlighted_text + "</span>" + "<br/>" + "<span>Comment</span>" + ": " + "<br/>" + "<span class='comment-text' style='color:#252525;'>" + nameObj.comment + "</span>" +
       '</li>'
     );
