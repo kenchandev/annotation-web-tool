@@ -55,7 +55,7 @@
 
   // var last10Comments = commentsRef.limit(10);
 
-  var bubbleContainer = $("<div></div>").addClass('bubble-items').appendTo(container);
+  var bubbleContainer = $("<div></div>").addClass('bubble-items').appendTo($('body'));
 
 
   //  Append the overlay and the overall comments list...
@@ -67,7 +67,7 @@
     'top': '0%',
     'left': '0%',
     'display': 'none'
-  }).appendTo(container);
+  }).appendTo($('body'));
   var allCommentsList = $("<div></div>").addClass('container').attr('id', 'all-comments-list').css({
     'height': '50%',
     'width': '30%',
@@ -82,11 +82,22 @@
     'font-size': '8px',
     'padding': '0px',
     'border': '1px solid #e0e0e0'
-  }).appendTo(container);
+  }).appendTo($('body'));
   var allListContainer = $("<ul></ul>").addClass('entire-collection collection').css({
-      'border': 'none',
-      'margin': '0px'
-    }).appendTo(allCommentsList);
+    'border': 'none',
+    'margin': '0px'
+  }).appendTo(allCommentsList);
+  var overallCounter = $('<div></div>').attr('id','overall-counter').css({
+    'top': '15%',
+    'height': '5%',
+    'width': '5%',
+    'position': 'fixed',
+    'left': '49%',
+    'font-size': '3rem',
+    'color': 'white',
+    'text-shadow': 'rgba(0, 0, 0, 0.6) 0px 0px 16px',
+    'display': 'none'
+  }).text(0).appendTo($('body'));
 
   //  Append comment icons to the end of each paragraph/header tag
   var iconsDivs = $("<i></i>").addClass("mdi-notification-sms-failed").css({
@@ -389,14 +400,21 @@
 
       renderComments(name, item, bubbleElement.selector);
       renderComments(name, item, '.entire-collection');
-      var count = parseInt($(item.parentPath + ' ' + '.comment-count').text()) + 1;
-      $(item.parentPath + ' ' + '.comment-count').text(count);
 
+      var singleCount = parseInt($(item.parentPath + ' ' + '.comment-count').text()) + 1;
+      $(item.parentPath + ' ' + '.comment-count').text(singleCount);
+      var overallCount = parseInt($('#overall-counter').text()) + 1;
+      $('#overall-counter').text(overallCount);
 
-      var scrollValue = $(bubbleElement.selector + ' ' + '.comment-list')[0].scrollHeight;
-      console.log(scrollValue);
+      var scrollSingle = $(bubbleElement.selector + ' ' + '.comment-list')[0].scrollHeight; //  [0] for DOM object.
+      console.log(scrollSingle);
       $(bubbleElement.selector + ' ' + '.comment-list').animate({
-        scrollTop: scrollValue
+        scrollTop: scrollSingle
+      }, 'fast');
+
+      var scrollOverall = $('#all-comments-list')[0].scrollHeight;
+      $('#all-comments-list').animate({
+        scrollTop: scrollOverall
       }, 'fast');
 
 
@@ -471,10 +489,10 @@
 
   function handler_archive_two() {
     // printAllFlag = false;
-    ($(this).hasClass('off-annotation')) ? iconOn($(this)) : iconOff($(this));
+    ($(this).hasClass('off-annotation')) ? iconOn($(this)): iconOff($(this));
 
     printComments(false, undefined, '.entire-collection');
-    
+
     $(this).one("click", handler_archive_one);
   }
 
@@ -491,15 +509,14 @@
     var selector = (typeof(selector1) !== 'undefined' && typeof(selector2) !== 'undefined' && typeof(selector3) !== 'undefined' && typeof(selector4) !== 'undefined') ? selector1.add(selector2).add(selector3).add(selector4) : selector1;
 
     selector.off("mouseout");
-    
+
     selector.on("mouseout", function() {
       $(this).css("color", "white");
     });
     // selector.css("color", "white");
     selector.removeClass('on-annotation').addClass('off-annotation');
     selector.css('color', '#FFFFFF');
-    if(!selector.hasClass('mdi-content-archive'))
-    {
+    if (!selector.hasClass('mdi-content-archive')) {
       selector.off("click");
       selector.one("click", function() {
         handler_one($(this));
@@ -628,12 +645,6 @@
       $(parentBubbleSelector + ' ' + '.comment-area textarea').off("keyup");
       $('i.mdi-notification-sms-failed').off("click");
       $('i.mdi-notification-sms-failed').one("click", setCommentIconAction);
-      // $(parentBubbleSelector + ' ' + ".comment-area").show();
-      // if ($('.comment-area').css('right') === "-15%" || $('.comment-area').css('right') === "0%") {
-      //   $(".comment-area").css("display", "block").animate({
-      //     "right": "0%"
-      //   }, "fast");
-      // }
 
       iconOn($('.mdi-editor-insert-comment'));
       iconOff($('.mdi-content-archive'));
@@ -685,43 +696,16 @@
   function printComments(printFlag, selectedObj, parentBubbleSelector) {
     printAllFlag = printFlag;
 
-    if (printAllFlag == true){
+    if (printAllFlag == true) {
       $('#overlay').show();
       $('#all-comments-list').show();
-    }
-    else{
+      $('#overall-counter').show();
+    } else {
       $('#overlay').hide();
       $('#all-comments-list').hide();
+      $('#overall-counter').hide();
     }
-    // if ($('.comment-list').css('right') === "-15%" || $('.comment-list').css('right') === "0%") {
-    //   $(".comment-list").css("display", "block").animate({
-    //     "right": "0%"
-    //   }, "fast");
-    // }
-    
 
-    //  Dump everything from the Firebase archive.
-    // $(parentBubbleSelector + ' ' + '.comment-list .collection').empty();
-
-    // if (typeof(selectedObj) !== 'undefined') {
-    //   if(printAllFlag == false){
-    //     for (var property in internalCommentsDict) {
-    //       var nameObj = internalCommentsDict[property];
-    //       if (nameObj.parentPath == selectedObj.parentCSSPath) //  Print comments for particular section.
-    //       // renderComments(property, nameObj, parentBubbleSelector);
-    //         console.log("..");
-    //     }
-    //   }
-    // } else {
-    // if (printAllFlag == true){
-    //   for (var property in internalCommentsDict) {
-    //     var nameObj = internalCommentsDict[property]; //  Print all comments.
-    //     renderComments(property, nameObj, parentBubbleSelector);
-    //   }
-    // }
-    // }
-
-    // setCommentIconAction(true);
   }
 
   function renderComments(property, nameObj, parentBubbleSelector) {
@@ -743,14 +727,14 @@
     else
       annotationMethod = "No Text Selected";
 
-    if(parentBubbleSelector == '.entire-collection')
+    if (parentBubbleSelector == '.entire-collection')
       collectionDiv = $('.entire-collection');
     else
       collectionDiv = $(parentBubbleSelector + ' ' + '.comment-list .collection')
 
     collectionDiv.append('<a href="#!" class="collection-item" style="line-height:0.7rem; font-size:10px;" id="' + property + '">' + "<strong style='display:inline-block; float:right;'>" + nameObj.twitterName + "</strong>" + "<br/>" + "<span>" + annotationMethod + "</span>" + ": " + "<br/>" + "<span class='highlighted-text' style='color:#252525; " + backgroundColor + " font-style:" + nameObj.spanStyles.fontStyle + "; font-weight:" + nameObj.spanStyles.fontWeight + "; text-decoration:" + nameObj.spanStyles.textDecoration + ";'>" + nameObj.highlighted_text + "</span>" + "<br/>" + "<span>Comment</span>" + ": " + "<br/>" + "<span class='comment-text' style='color:#252525;'>" + nameObj.comment + "</span>" +
-        '</li>'
-      );
+      '</li>'
+    );
   }
 
 }(window, jQuery));
