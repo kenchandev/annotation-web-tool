@@ -575,9 +575,12 @@
     $(elements).off('mousedown');
 
     $(elements).on('mouseup', function(e) {
+      cssColor = ($('.mdi-editor-format-bold').hasClass('off-annotation') && $('.mdi-editor-format-italic').hasClass('off-annotation') && $('.mdi-editor-format-color-text').hasClass('off-annotation') && $('.mdi-editor-format-clear').hasClass('off-annotation')) ? "#FEC324" : "#FFFFFF"; //  if all off, then set the highlight color to defult yellow-orange
+      console.log(cssColor);
       if ($(e.target).hasClass('mdi-notification-sms-failed')) {
-        clickSmallCommentIcon = true;
         cssColor = '#90CAF9';
+        clickSmallCommentIcon = true;
+        cssStyle = undefined;
       }
       mouseupAction(cssColor, cssStyle);
     });
@@ -595,6 +598,7 @@
 
   function mouseupAction(cssColor, cssStyle, selection) {
     var selectedObj = highlightText(cssColor, cssStyle, selection);
+    console.log("Selected Object", selectedObj);
     parentCSSRefPath = selectedObj.parentCSSPath; //  global.
     var parentBubbleSelector = htmlTagListDict[selectedObj.parentCSSPath].selector;
 
