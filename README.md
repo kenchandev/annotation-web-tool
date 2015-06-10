@@ -20,7 +20,7 @@ There are three components to the tool:
 -	The side-panel features all the tools for enriching annotations and toggling off any comment panels displayed on the screen. Furthermore, there is support for Twitter logins, which allows users to distinguish their comments from other users' comments.
 -	An archival icon on the fixed side-panel enables the user to see the total number of comments added along with a list of all the comments. This number and list are updated in real-time if other users accessing the same application add comments.
 
-Within the side-panel, there are nine icons (from top to bottom):
+Within the side-panel, there are eight icons (from top to bottom):
 -	Twitter login
 -	Toggling off comments / Indicating if any comment panels are shown on the webpage
 -	Highlight text
