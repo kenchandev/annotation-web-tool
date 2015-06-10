@@ -270,6 +270,7 @@
 
   $(elements).on('mouseup', function(e) {
     if ($(e.target).hasClass('mdi-notification-sms-failed')) {
+      console.log("Somewhere over the rainbow...");
       clickSmallCommentIcon = true;
       mouseupAction('#90CAF9');
     } else
@@ -397,16 +398,19 @@
   commentsRef.on('child_changed', function(snapshot) {
     var comment = snapshot.val().comment;
     var name = snapshot.name().substring(1);
-    $("#" + name + " span.comment-text").text(comment);
+    $("." + name + " span.comment-text").text(comment);
     internalCommentsDict[name].comment = comment;
   });
 
   commentsRef.on("child_removed", function(snapshot) {
     var name = snapshot.name().substring(1);
-    $("#" + name).remove();
+    $("." + name).remove();
 
     var count = parseInt($(snapshot.val().parentPath + ' ' + '.comment-count').text()) - 1;
     $(snapshot.val().parentPath + ' ' + '.comment-count').text(count);
+    var overallCount = parseInt($('#overall-counter').text()) - 1;
+    $('#overall-counter').text(overallCount);
+
     delete internalCommentsDict[name];
   });
 
@@ -578,6 +582,7 @@
       cssColor = ($('.mdi-editor-format-bold').hasClass('off-annotation') && $('.mdi-editor-format-italic').hasClass('off-annotation') && $('.mdi-editor-format-color-text').hasClass('off-annotation') && $('.mdi-editor-format-clear').hasClass('off-annotation')) ? "#FEC324" : "#FFFFFF"; //  if all off, then set the highlight color to defult yellow-orange
       console.log(cssColor);
       if ($(e.target).hasClass('mdi-notification-sms-failed')) {
+        console.log("Inside here...");
         cssColor = '#90CAF9';
         clickSmallCommentIcon = true;
         cssStyle = undefined;
@@ -606,6 +611,7 @@
       $(parentBubbleSelector + ' ' + 'textarea').focus();
       var oldValue = "";
 
+      $(parentBubbleSelector + ' ' + '.comment-area textarea').off('change keyup paste');
       $(parentBubbleSelector + ' ' + 'textarea').on('change keyup paste', function() {
         var currentValue = $(this).val();
         if (currentValue != oldValue) {
@@ -665,7 +671,6 @@
 
       function bubbleAddButton(parentBubbleSelector) {
         $(parentBubbleSelector + ' ' + '.comment-area textarea').val("");
-        $(parentBubbleSelector + ' ' + '.comment-area textarea').off();
         clickSmallCommentIcon = true;
         mouseupAction('#90CAF9', undefined, selectedObj.selection);
       }
@@ -714,7 +719,7 @@
     else
       collectionDiv = $(parentBubbleSelector + ' ' + '.comment-list .collection')
 
-    collectionDiv.append('<a href="#!" class="collection-item" style="line-height:0.7rem; font-size:10px;" id="' + property + '">' + "<strong style='display:inline-block; float:right;'>" + nameObj.twitterName + "</strong>" + "<br/>" + "<span>" + annotationMethod + "</span>" + ": " + "<br/>" + "<span class='highlighted-text' style='color:#252525; " + backgroundColor + " font-style:" + nameObj.spanStyles.fontStyle + "; font-weight:" + nameObj.spanStyles.fontWeight + "; text-decoration:" + nameObj.spanStyles.textDecoration + ";'>" + nameObj.highlighted_text + "</span>" + "<br/>" + "<span>Comment</span>" + ": " + "<br/>" + "<span class='comment-text' style='color:#252525;'>" + nameObj.comment + "</span>" +
+    collectionDiv.append('<a href="#!" class="collection-item" style="line-height:0.7rem; font-size:10px;" class="' + property + '">' + "<strong style='display:inline-block; float:right;'>" + nameObj.twitterName + "</strong>" + "<br/>" + "<span>" + annotationMethod + "</span>" + ": " + "<br/>" + "<span class='highlighted-text' style='color:#252525; " + backgroundColor + " font-style:" + nameObj.spanStyles.fontStyle + "; font-weight:" + nameObj.spanStyles.fontWeight + "; text-decoration:" + nameObj.spanStyles.textDecoration + ";'>" + nameObj.highlighted_text + "</span>" + "<br/>" + "<span>Comment</span>" + ": " + "<br/>" + "<span class='comment-text' style='color:#252525;'>" + nameObj.comment + "</span>" +
       '</li>'
     );
   }
